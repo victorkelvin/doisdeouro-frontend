@@ -1,4 +1,5 @@
-const BASE_URL = 'http://localhost:8000/api/';
+const BASE_URL =  process.env.API_URL || 'http://localhost:8000';
+const API_URL = `${BASE_URL}/api/`;
 
 const getToken = () => {
     return localStorage.getItem('token');
@@ -24,7 +25,7 @@ const refreshAccessToken = async () => {
             throw new Error('No refresh token available');
         }
 
-        const response = await fetch(`${BASE_URL}token/refresh/`, {
+        const response = await fetch(`${API_URL}token/refresh/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -102,7 +103,7 @@ const apiRequest = async (endpoint, method, body = null) => {
             body: body ? JSON.stringify(body) : null,
         };
 
-        const response = await fetch(`${BASE_URL}${endpoint}`, options);
+        const response = await fetch(`${API_URL}${endpoint}`, options);
         return handleResponse(response, newToken => makeRequest(newToken));
     };
 
@@ -125,7 +126,7 @@ const apiFormDataRequest = async (endpoint, method, formData) => {
             body: formData,
         };
 
-        const response = await fetch(`${BASE_URL}${endpoint}`, options);
+        const response = await fetch(`${API_URL}${endpoint}`, options);
         return handleResponse(response, newToken => makeRequest(newToken));
     };
 
@@ -149,7 +150,7 @@ const apiBlobHandler = async (endpoint, body) => {
                 body: body ? JSON.stringify(body) : null,
             };
     
-            const response = await fetch(`${BASE_URL}${endpoint}`, options);
+            const response = await fetch(`${API_URL}${endpoint}`, options);
             return response.blob(); // Return the blob directly
         };
     
