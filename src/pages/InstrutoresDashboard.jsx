@@ -117,8 +117,7 @@ const InstrutoresDashboard = () => {
             }
 
             resetForm();
-            const instrutoresData = await fetchInstrutores();
-            setInstrutores(instrutoresData);
+            loadData();
         } catch (error) {
             console.error('Error submitting form:', error);
         }
@@ -147,7 +146,7 @@ const InstrutoresDashboard = () => {
         formData.append('is_active', newStatus);
 
         await updateInstrutor(instrutor.id, formData);
-        setInstrutores(await fetchInstrutores());
+        loadData();
     };
 
     const filteredInstrutores = filterData(instrutores, searchTerm);
