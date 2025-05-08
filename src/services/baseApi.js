@@ -1,4 +1,17 @@
-const BASE_URL =  process.env.API_URL || 'http://localhost:8000';
+// Configuração para usar a URL pública no navegador do cliente
+// e a URL interna para comunicação entre serviços no Railway
+let BASE_URL;
+
+// Verifica se estamos rodando no ambiente do cliente (navegador) ou servidor
+if (typeof window !== 'undefined') {
+  // No cliente (navegador), usamos a URL pública
+  // REACT_APP_ é o prefixo padrão para Create React App
+  BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+} else {
+  // No servidor ou em ambiente de build, podemos usar a URL interna
+  BASE_URL = process.env.API_URL || 'http://localhost:8000';
+}
+
 const API_URL = `${BASE_URL}/api/`;
 
 const getToken = () => {
