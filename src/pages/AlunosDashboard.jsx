@@ -191,6 +191,7 @@ const AlunosDashboard = () => {
                             required
                             className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
                         />
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento</label>
                         <input
                             type="date"
                             value={data_nascimento}

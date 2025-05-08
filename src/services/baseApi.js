@@ -2,27 +2,22 @@
 // e a URL interna para comunicação entre serviços no Railway
 let BASE_URL;
 
-// Adiciona logs para debug
-console.log("Variáveis de ambiente disponíveis:");
-console.log("REACT_APP_API_URL:", process.env.REACT_APP_API_URL);
-console.log("REACT_APP_BACKEND_URL:", process.env.REACT_APP_BACKEND_URL);
-console.log("NODE_ENV:", process.env.NODE_ENV);
-
 // Verifica se estamos rodando no ambiente do cliente (navegador) ou servidor
 if (typeof window !== 'undefined') {
-  // No cliente (navegador), usamos a URL pública
-  // REACT_APP_ é o prefixo padrão para Create React App
-  BASE_URL = process.env.REACT_APP_API_URL || 'localhost:8000';
-  console.log("Rodando no navegador, BASE_URL definida como:", BASE_URL);
+    BASE_URL = process.env.REACT_APP_API_URL || 'localhost:8000';
 } else {
-  // No servidor ou em ambiente de build, podemos usar a URL interna
-  BASE_URL = process.env.REACT_APP_BACKEND_URL || 'localhost:8000';
-  console.log("Rodando no servidor, BASE_URL definida como:", BASE_URL);
+    // No servidor ou em ambiente de build, podemos usar a URL interna
+    BASE_URL = process.env.REACT_APP_BACKEND_URL || 'localhost:8000';
 }
 
+let API_URL;
 
-const API_URL = `https://${BASE_URL}/api/`;
-console.log("API_URL final:", API_URL);
+if (process.env.NODE_ENV === 'production') {
+    API_URL = `https://${BASE_URL}/api/`;
+} else {
+    // Em desenvolvimento, usamos a URL interna
+    API_URL = `http://${BASE_URL}/api/`;
+}
 
 const getToken = () => {
     return localStorage.getItem('token');
@@ -130,7 +125,7 @@ const apiRequest = async (endpoint, method, body = null) => {
         return handleResponse(response, newToken => makeRequest(newToken));
     };
 
-    return makeRequest( null );
+    return makeRequest(null);
 };
 
 
@@ -167,18 +162,18 @@ const apiBlobHandler = async (endpoint, body) => {
             const options = {
                 method: 'POST',
                 headers: {
-                  'Authorization': `Bearer ${ getToken()}`,
-                  'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
                 },
                 body: body ? JSON.stringify(body) : null,
             };
-    
+
             const response = await fetch(`${API_URL}${endpoint}`, options);
             return response.blob(); // Return the blob directly
         };
-    
+
         return makeRequest();
-        
+
     } catch (error) {
         console.error('Error fetching blob:', error);
     }
