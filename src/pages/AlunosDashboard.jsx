@@ -44,7 +44,7 @@ const AlunosDashboard = () => {
 
     const loadData = async () => {
         const alunosData = await fetchAlunos();
-        setAlunos(alunosData.results);
+        setAlunos(await alunosData.results);
         const graduacoesData = await fetchGraduacoes();
         setGraduacoes(graduacoesData);
         const turmasData = await fetchTurmas();
@@ -116,8 +116,7 @@ const AlunosDashboard = () => {
             }
 
             resetForm();
-            const alunosData = await fetchAlunos();
-            setAlunos(alunosData.results);
+            loadData(); // Reload data after submission
         } catch (error) {
             console.error('Error submitting form:', error);
         }
@@ -147,8 +146,7 @@ const AlunosDashboard = () => {
         formData.append('ativo', newStatus);
 
         await updateAluno(aluno.id, formData);
-        const alunosData = await fetchAlunos();
-        setAlunos(alunosData.results);
+        loadData(); // Reload data after updating status
     };
 
     const filteredAlunos = filterData(alunos, searchTerm);
