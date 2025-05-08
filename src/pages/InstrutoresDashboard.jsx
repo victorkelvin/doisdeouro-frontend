@@ -46,7 +46,7 @@ const InstrutoresDashboard = () => {
 
     const loadData = async () => {
         const instrutoresData = await fetchInstrutores();
-        const filteredInstrutores = instrutoresData.filter(instrutor => !instrutor.is_staff);
+        const filteredInstrutores = instrutoresData.filter(instrutor => !instrutor.is_superuser);
         setInstrutores(filteredInstrutores);
         const graduacoesData = await fetchGraduacoes();
         setGraduacoes(graduacoesData);

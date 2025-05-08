@@ -50,7 +50,7 @@ const AulasDashboard = () => {
 
         setTurmas(await fetchTurmas());
         const instrutoresData = await fetchInstrutores();
-        const filteredInstrutores = instrutoresData.filter(instrutor => !instrutor.is_staff);
+        const filteredInstrutores = instrutoresData.filter(instrutor => !instrutor.is_superuser);
         setInstrutores(filteredInstrutores);
     };
 
