@@ -8,7 +8,7 @@ console.log("REACT_APP_API_URL:", process.env.REACT_APP_API_URL);
 console.log("REACT_APP_BACKEND_URL:", process.env.REACT_APP_BACKEND_URL);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
-// Verifica se estamos rodando no ambiente do cliente (navegador) ou servidor
+/* // Verifica se estamos rodando no ambiente do cliente (navegador) ou servidor
 if (typeof window !== 'undefined') {
   // No cliente (navegador), usamos a URL pública
   // REACT_APP_ é o prefixo padrão para Create React App
@@ -18,7 +18,10 @@ if (typeof window !== 'undefined') {
   // No servidor ou em ambiente de build, podemos usar a URL interna
   BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
   console.log("Rodando no servidor, BASE_URL definida como:", BASE_URL);
-}
+} */
+
+BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+
 
 const API_URL = `${BASE_URL}/api/`;
 console.log("API_URL final:", API_URL);
@@ -184,4 +187,4 @@ const apiBlobHandler = async (endpoint, body) => {
 
 }
 
-export { apiRequest, apiFormDataRequest, logout, apiBlobHandler };
+export { apiRequest, apiFormDataRequest, logout, apiBlobHandler, API_URL };
