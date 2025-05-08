@@ -52,9 +52,11 @@ export const AuthProvider = ({ children }) => {
     }, [navigate, location.pathname]);
 
     const login = async (username, password) => {
+        let BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        const API_URL = `${BASE_URL}/api/`;
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/api/token/', {
+            const response = await fetch(`${API_URL}token/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
