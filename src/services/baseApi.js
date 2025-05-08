@@ -21,7 +21,7 @@ if (typeof window !== 'undefined') {
 }
 
 
-const API_URL = `http://${BASE_URL}/api/`;
+const API_URL = `https://${BASE_URL}/api/`;
 console.log("API_URL final:", API_URL);
 
 const getToken = () => {
