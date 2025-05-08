@@ -12,16 +12,16 @@ console.log("NODE_ENV:", process.env.NODE_ENV);
 if (typeof window !== 'undefined') {
   // No cliente (navegador), usamos a URL pública
   // REACT_APP_ é o prefixo padrão para Create React App
-  BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  BASE_URL = process.env.REACT_APP_API_URL || 'localhost:8000';
   console.log("Rodando no navegador, BASE_URL definida como:", BASE_URL);
 } else {
   // No servidor ou em ambiente de build, podemos usar a URL interna
-  BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+  BASE_URL = process.env.REACT_APP_BACKEND_URL || 'localhost:8000';
   console.log("Rodando no servidor, BASE_URL definida como:", BASE_URL);
 }
 
 
-const API_URL = `${BASE_URL}/api/`;
+const API_URL = `http://${BASE_URL}/api/`;
 console.log("API_URL final:", API_URL);
 
 const getToken = () => {
