@@ -5,7 +5,7 @@ let BASE_URL;
 // Adiciona logs para debug
 console.log("Variáveis de ambiente disponíveis:");
 console.log("REACT_APP_API_URL:", process.env.REACT_APP_API_URL);
-console.log("API_URL:", process.env.API_URL);
+console.log("REACT_APP_BACKEND_URL:", process.env.REACT_APP_BACKEND_URL);
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
 // Verifica se estamos rodando no ambiente do cliente (navegador) ou servidor
@@ -16,7 +16,7 @@ if (typeof window !== 'undefined') {
   console.log("Rodando no navegador, BASE_URL definida como:", BASE_URL);
 } else {
   // No servidor ou em ambiente de build, podemos usar a URL interna
-  BASE_URL = process.env.API_URL || 'http://localhost:8000';
+  BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
   console.log("Rodando no servidor, BASE_URL definida como:", BASE_URL);
 }
 
