@@ -124,13 +124,14 @@ const InstrutoresDashboard = () => {
     };
 
     const handleEdit = (instrutor) => {
+        setIsFormVisible(true);
         setUsername(instrutor.username);
         setIsActive(instrutor.is_active === true || instrutor.is_active === "true");
         setNome(instrutor.nome);
         setContato(instrutor.contato || '');
         setEmail(instrutor.email || '');
         setGraduacao(instrutor.graduacao || '');
-        setFotoPreview(instrutor.foto);
+        setFotoPreview(instrutor.foto_base64 || '');
         setEditingId(instrutor.id);
         setPassword(instrutor.password || '');
     };

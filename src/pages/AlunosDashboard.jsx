@@ -123,6 +123,7 @@ const AlunosDashboard = () => {
     };
 
     const handleEdit = (aluno) => {
+        setIsFormVisible(true);
         setNome(aluno.nome);
         setAtivo(aluno.ativo === true || aluno.ativo === "true"); 
         setDataNascimento(aluno.data_nascimento);
@@ -131,7 +132,7 @@ const AlunosDashboard = () => {
         setGraduacao(aluno.graduacao || '');
         setTurma(aluno.turma || '');
         setEditingId(aluno.id);
-        setFotoPreview(aluno.foto);
+        setFotoPreview(aluno.foto_base64 || '');
     };
 
     const toggleAtivoStatus = async (aluno) => {

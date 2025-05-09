@@ -87,6 +87,7 @@ const AulasDashboard = () => {
     };
 
     const handleEdit = (aula) => {
+        setIsFormVisible(true);
         setData((aula.data));
         setAlunosPresentes(aula.alunos_presentes || []);
         setHorarioInicio(aula.horario_inicio);
