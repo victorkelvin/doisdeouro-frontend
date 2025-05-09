@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { formatDate } from '../utils/utils';
 
-const SpanCard = async ({ data, position, setCardPosition }) => {
+const SpanCard = ({ data, position, setCardPosition }) => {
     const [cardPosition, setCardPositionState] = useState(position);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ const SpanCard = async ({ data, position, setCardPosition }) => {
         >
             <div className="flex flex-col items-center">
                 <img
-                    src={await data.foto}
+                    src={data.foto}
                     alt={data.nome}
                     className="w-32 h-32 object-cover rounded-lg mb-2 border border-gray-200"
                 />
