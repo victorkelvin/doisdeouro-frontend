@@ -3,8 +3,6 @@ import { formatDate } from '../utils/utils';
 
 const SpanCard = ({ data, position, setCardPosition }) => {
     const [cardPosition, setCardPositionState] = useState(position);
-    console.log('SpanCard data:', data);
-    console.log('Type of foto:', typeof data.foto_base64);
     useEffect(() => {
         const handleMouseMove = (e) => {
             const viewportWidth = window.innerWidth;
