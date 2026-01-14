@@ -29,15 +29,10 @@ const InstrutoresDashboard = () => {
         setEmail,
         setContato,
         resetForm,
-        handleFileChange,
-        setFotoPreview,
-        fotoPreview,
-        foto,
         password,
         setPassword,
         passwordConfirm,
         setPasswordConfirm,
-
     } = useInstrutorForm();
 
     const loadData = async () => {
@@ -63,12 +58,8 @@ const InstrutoresDashboard = () => {
             formData.append('email', email);
             formData.append('graduacao', graduacao);
             formData.append('contato', contato);
-            formData.append('is_active', is_active,);
+            formData.append('is_active', is_active);
             formData.append('password', password);
-
-            if (foto) {
-                formData.append('foto', foto);
-            }
 
             if (editingId) {
                 await updateInstrutor(editingId, formData);
@@ -91,7 +82,6 @@ const InstrutoresDashboard = () => {
         setContato(instrutor.contato || '');
         setEmail(instrutor.email || '');
         setGraduacao(instrutor.graduacao || '');
-        setFotoPreview(instrutor.foto_base64 || '');
         setEditingId(instrutor.id);
         setPassword(instrutor.password || '');
     };
@@ -166,21 +156,6 @@ const InstrutoresDashboard = () => {
                             className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent" />
                         <input type="text" name="contato" placeholder="Contato" value={contato} onChange={(e) => setContato(e.target.value)}
                             className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent" />
-
-                        <div className="mb-3">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Foto</label>
-                            <input
-                                type="file"
-                                accept="image/jpeg, image/png"
-                                onChange={handleFileChange}
-                                className="border rounded p-2 w-full bg-white"
-                            />
-                            {fotoPreview && (
-                                <div className="mt-2">
-                                    <img src={fotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded border border-gray-300" />
-                                </div>
-                            )}
-                        </div>
 
                         <div className="mb-3">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Graduação</label>
