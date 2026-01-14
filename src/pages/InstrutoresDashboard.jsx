@@ -1,20 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fetchInstrutores, createInstrutor, updateInstrutor } from '../services/instrutoresApi';
 import { fetchGraduacoes } from '../services/alunosApi';
 import useInstrutorForm from '../hooks/useInstrutorForm';
 import { filterData, sortData, renderSortIndicator } from '../utils/sorting';
 import SearchBar from '../components/SearchBar';
-import SpanCard from '../components/SpanCard';
 
 const InstrutoresDashboard = () => {
     const [instrutores, setInstrutores] = useState([]);
     const [graduacoes, setGraduacoes] = useState([]);
-    const [selectedInstrutor, setSelectedInstrutor] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
     const [isFormVisible, setIsFormVisible] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
-    const cardRef = useRef(null);
 
 
     const {
@@ -55,42 +51,6 @@ const InstrutoresDashboard = () => {
     useEffect(() => {
         loadData();
     }, []);
-
-
-    const handleMouseEnter = (instrutor, e) => {
-        setSelectedInstrutor(instrutor);
-
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-
-        let x = e.clientX + 10; // Offset from cursor
-        let y = e.clientY + 10;
-
-        setTimeout(() => {
-            if (cardRef.current) {
-                const cardWidth = cardRef.current.offsetWidth;
-                const cardHeight = cardRef.current.offsetHeight;
-
-                // Adjust horizontal position if needed
-                if (x + cardWidth > viewportWidth) {
-                    x = e.clientX - cardWidth - 10;
-                }
-
-                // Adjust vertical position if needed
-                if (y + cardHeight > viewportHeight) {
-                    y = e.clientY - cardHeight - 10;
-                }
-
-                setCardPosition({ x, y });
-            }
-        }, 0);
-
-        setCardPosition({ x, y });
-    };
-
-    const handleMouseLeave = () => {
-        setSelectedInstrutor(null);
-    };
 
 
     const handleSubmit = async (e) => {
@@ -154,7 +114,6 @@ const InstrutoresDashboard = () => {
 
 
     const sortedInstrutores = sortData(filteredInstrutores, sortDirection);
-
 
 
 
@@ -311,10 +270,7 @@ const InstrutoresDashboard = () => {
 
                             return (
 
-                                <tr key={instrutor.id} className="hover:bg-gray-50 transition-all duration-200 cursor-pointer"
-                                    onMouseEnter={(e) => handleMouseEnter(instrutor, e)}
-                                    onMouseLeave={handleMouseLeave}
-                                >
+                                <tr key={instrutor.id} className="hover:bg-gray-50 transition-all duration-200">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <input
                                             type="checkbox"
@@ -351,9 +307,6 @@ const InstrutoresDashboard = () => {
                 </table>
             </div>
 
-            {selectedInstrutor && (
-                <SpanCard data={selectedInstrutor} position={cardPosition} setCardPosition={setCardPosition} />
-            )}
         </div>
     );
 };
