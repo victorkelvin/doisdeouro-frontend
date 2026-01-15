@@ -69,6 +69,7 @@ const SpanCard = ({ data, position, setCardPosition }) => {
                 <h2 className='font-bold text-lg text-gray-900'>{data.nome}</h2>
                 <div className="w-full mt-2">
                     <p className="text-sm"><span className="font-semibold">Graduação:</span> {data.faixa || 'N/A'}</p>
+                    <p className="text-sm"><span className="font-semibold">Graus:</span> {data.graus || 'N/A'}</p>
                     <p className="text-sm"><span className="font-semibold">Status:</span>
                         <span className={`ml-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${data.ativo || data.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                             {data.ativo || data.is_active ? 'Ativo' : 'Inativo'}

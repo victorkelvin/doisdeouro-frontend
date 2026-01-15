@@ -10,7 +10,6 @@ import SpanCard from '../components/SpanCard';
 const AlunosDashboard = () => {
     const [alunos, setAlunos] = useState([]);
     const [graduacoes, setGraduacoes] = useState([]);
-    const [graus, setGraus] = useState('');
     const [turmas, setTurmas] = useState([]);
     const [selectedAluno, setSelectedAluno] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(true);
@@ -28,7 +27,7 @@ const AlunosDashboard = () => {
         contato,
         email,
         graduacao,
-        grau,
+        graus,
         turma,
         ativo,
         foto,
@@ -39,7 +38,7 @@ const AlunosDashboard = () => {
         setContato,
         setEmail,
         setGraduacao,
-        setGrau,
+        setGraus,
         setTurma,
         setAtivo,
         setFotoPreview,
@@ -119,7 +118,7 @@ const AlunosDashboard = () => {
             formData.append('contato', contato);
             formData.append('email', email);
             formData.append('graduacao', graduacao);
-            formData.append('grau', grau);
+            formData.append('graus', graus);
             formData.append('turma', turma);
             formData.append('ativo', ativo);
             formData.append('responsavel', responsavel || '');
@@ -153,25 +152,24 @@ const AlunosDashboard = () => {
         setEditingId(aluno.id);
         setFotoPreview(aluno.foto_base64 || '');
         setResponsavel(aluno.responsavel || '');
-        setGrau(aluno.grau || '');
+        setGraus(aluno.graus || '');
     };
 
     const toggleAtivoStatus = async (aluno) => {
         const newStatus = !(aluno.ativo === true || aluno.ativo === "true");
         const formData = new FormData();
+        formData.append('ativo', newStatus);
         formData.append('nome', aluno.nome);
         formData.append('data_nascimento', aluno.data_nascimento || '');
         formData.append('contato', aluno.contato || '');
         formData.append('email', aluno.email || '');
         formData.append('graduacao', aluno.graduacao || '');
+        formData.append('graus', aluno.graus || '');
         formData.append('turma', aluno.turma || '');
-        formData.append('ativo', newStatus);
-        formData.append('grau', aluno.grau || '');
         formData.append('responsavel', aluno.responsavel || '');
         if (aluno.foto_file) {
             formData.append('foto', aluno.foto_file);
         }
-        
 
         await updateAluno(aluno.id, formData);
         loadData(); 
@@ -318,6 +316,7 @@ const AlunosDashboard = () => {
                                     max={4}
                                     step={1}
                                     value={graus}
+                                    accept='0-4'
                                     onChange={(e) => setGraus(e.target.value === '' ? '' : Number(e.target.value))}
                                     className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
                                 />

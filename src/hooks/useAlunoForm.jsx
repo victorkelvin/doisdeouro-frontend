@@ -11,6 +11,8 @@ const useAlunoForm = () => {
     const [foto, setFoto] = useState(null);
     const [fotoPreview, setFotoPreview] = useState('');
     const [editingId, setEditingId] = useState(null);
+    const [graus, setGraus] = useState('');
+    const [responsavel, setResponsavel] = useState('');
 
     const resetForm = () => {
         setNome('');
@@ -23,6 +25,8 @@ const useAlunoForm = () => {
         setFoto(null);
         setFotoPreview('');
         setAtivo(true);
+        setGraus('');
+        setResponsavel('');
     };
 
     const handleFileChange = (e) => {
@@ -53,6 +57,10 @@ const useAlunoForm = () => {
         resetForm,
         handleFileChange,
         setEditingId,
+        graus,
+        setGraus,
+        responsavel,
+        setResponsavel,
     };
 };
 
