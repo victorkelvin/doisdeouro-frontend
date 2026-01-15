@@ -178,7 +178,7 @@ const AulasDashboard = () => {
             </button>
 
             {isFormVisible && (
-                <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
+                <div className="bg-neutral-200 p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Aula' : 'Registrar Nova Aula'}</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -10,6 +10,7 @@ import SpanCard from '../components/SpanCard';
 const AlunosDashboard = () => {
     const [alunos, setAlunos] = useState([]);
     const [graduacoes, setGraduacoes] = useState([]);
+    const [graus, setGraus] = useState('');
     const [turmas, setTurmas] = useState([]);
     const [selectedAluno, setSelectedAluno] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(true);
@@ -18,12 +19,16 @@ const AlunosDashboard = () => {
     const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
     const cardRef = useRef(null);
 
+    // Responsável para alunos menores de 18
+    const [responsavel, setResponsavel] = useState('');
+
     const {
         nome,
         data_nascimento,
         contato,
         email,
         graduacao,
+        grau,
         turma,
         ativo,
         foto,
@@ -34,6 +39,7 @@ const AlunosDashboard = () => {
         setContato,
         setEmail,
         setGraduacao,
+        setGrau,
         setTurma,
         setAtivo,
         setFotoPreview,
@@ -55,7 +61,17 @@ const AlunosDashboard = () => {
         loadData();
     }, []);
 
-
+    const calculateAge = (dob) => {
+        if (!dob) return null;
+        const [year, month, day] = dob.split('-').map(Number);
+        const today = new Date();
+        let age = today.getFullYear() - year;
+        const m = today.getMonth() + 1 - month;
+        const d = today.getDate() - day;
+        if (m < 0 || (m === 0 && d < 0)) age--;
+        return age;
+    };
+    const showResponsavel = data_nascimento ? calculateAge(data_nascimento) < 18 : false;
 
     const handleMouseEnter = (aluno, e) => {
         setSelectedAluno(aluno);
@@ -103,8 +119,10 @@ const AlunosDashboard = () => {
             formData.append('contato', contato);
             formData.append('email', email);
             formData.append('graduacao', graduacao);
+            formData.append('grau', grau);
             formData.append('turma', turma);
             formData.append('ativo', ativo);
+            formData.append('responsavel', responsavel || '');
             if (foto) {
                 formData.append('foto', foto);
             }
@@ -116,6 +134,7 @@ const AlunosDashboard = () => {
             }
 
             resetForm();
+            setResponsavel('');
             loadData(); // Reload data after submission
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -125,7 +144,7 @@ const AlunosDashboard = () => {
     const handleEdit = (aluno) => {
         setIsFormVisible(true);
         setNome(aluno.nome);
-        setAtivo(aluno.ativo === true || aluno.ativo === "true"); 
+        setAtivo(aluno.ativo === true || aluno.ativo === "true");
         setDataNascimento(aluno.data_nascimento);
         setContato(aluno.contato || '');
         setEmail(aluno.email || '');
@@ -133,6 +152,8 @@ const AlunosDashboard = () => {
         setTurma(aluno.turma || '');
         setEditingId(aluno.id);
         setFotoPreview(aluno.foto_base64 || '');
+        setResponsavel(aluno.responsavel || '');
+        setGrau(aluno.grau || '');
     };
 
     const toggleAtivoStatus = async (aluno) => {
@@ -145,9 +166,15 @@ const AlunosDashboard = () => {
         formData.append('graduacao', aluno.graduacao || '');
         formData.append('turma', aluno.turma || '');
         formData.append('ativo', newStatus);
+        formData.append('grau', aluno.grau || '');
+        formData.append('responsavel', aluno.responsavel || '');
+        if (aluno.foto_file) {
+            formData.append('foto', aluno.foto_file);
+        }
+        
 
         await updateAluno(aluno.id, formData);
-        loadData(); // Reload data after updating status
+        loadData(); 
     };
 
     const filteredAlunos = filterData(alunos, searchTerm);
@@ -179,9 +206,10 @@ const AlunosDashboard = () => {
             </button>
 
             {isFormVisible && (
-                <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
+                <div className="bg-neutral-200 p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Aluno' : 'Adicionar Novo Aluno'}</h2>
                     <form onSubmit={handleSubmit}>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Nome</label>
                         <input
                             type="text"
                             placeholder="Nome"
@@ -190,28 +218,62 @@ const AlunosDashboard = () => {
                             required
                             className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
                         />
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento</label>
-                        <input
-                            type="date"
-                            value={data_nascimento}
-                            onChange={(e) => setDataNascimento(e.target.value)}
-                            className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Contato"
-                            value={contato}
-                            onChange={(e) => setContato(e.target.value)}
-                            className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                        />
 
+                        {showResponsavel && (
+                            <div className="mb-3">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Responsável (Aluno menor de 18)</label>
+                                <input
+                                    type="text"
+                                    placeholder="Nome do responsável"
+                                    value={responsavel}
+                                    onChange={(e) => setResponsavel(e.target.value)}
+                                    required
+                                    className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                />
+                            </div>
+                        )}
+
+                        <div className='sm:grid sm:grid-cols-3 sm:gap-4'>
+
+                            <div className="sm:col-span-1">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento</label>
+                                <div className="mt-2">
+                                    <input
+                                        type="date"
+                                        value={data_nascimento}
+                                        onChange={(e) => setDataNascimento(e.target.value)}
+                                        className="border rounded w-full p-2 mb-3  focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-1">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Contato</label>
+                                <div className="mt-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Contato"
+                                        value={contato}
+                                        onChange={(e) => setContato(e.target.value)}
+                                        className="border rounded w-full p-2 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="sm:col-span-1">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                                <div className="mt-2">
+                                    <input
+                                        type="email"
+                                        placeholder="Email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="border rounded w-full p-2 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                    />
+                                </div>
+                            </div>
+
+                        </div>
 
 
                         <div className="mb-3">
@@ -229,38 +291,55 @@ const AlunosDashboard = () => {
                             )}
                         </div>
 
-                        <div className="mb-3">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Graduação</label>
-                            <select
-                                value={graduacao}
-                                onChange={(e) => setGraduacao(e.target.value)}
-                                className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                            >
-                                <option value="">Selecione a Graduação</option>
-                                {graduacoes.map((grad) => (
-                                    <option key={grad.id} value={grad.id}>
-                                        {grad.faixa}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
 
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Turma</label>
-                            <select
-                                value={turma}
-                                onChange={(e) => setTurma(e.target.value)}
-                                className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                            >
-                                <option value="">Selecione a Turma</option>
-                                {turmas.map((turma) => (
-                                    <option key={turma.id} value={turma.id}>
-                                        {turma.nome}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <div className='sm:grid sm:grid-cols-3 sm:gap-4 mb-4'>
 
+                            <div className="mb-3">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Graduação</label>
+                                <select
+                                    value={graduacao}
+                                    onChange={(e) => setGraduacao(e.target.value)}
+                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                >
+                                    <option value="">Selecione a Graduação</option>
+                                    {graduacoes.map((grad) => (
+                                        <option key={grad.id} value={grad.id}>
+                                            {grad.faixa}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Graus</label>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={4}
+                                    step={1}
+                                    value={graus}
+                                    onChange={(e) => setGraus(e.target.value === '' ? '' : Number(e.target.value))}
+                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Turma</label>
+                                <select
+                                    value={turma}
+                                    onChange={(e) => setTurma(e.target.value)}
+                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                >
+                                    <option value="">Selecione a Turma</option>
+                                    {turmas.map((turma) => (
+                                        <option key={turma.id} value={turma.id}>
+                                            {turma.nome}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                        </div>
                         {/* Add the checkbox for "Ativo" status */}
                         <div className="flex items-center mb-3">
                             <input
@@ -284,7 +363,7 @@ const AlunosDashboard = () => {
                             </button>
                             <button
                                 type="button"
-                                onClick={resetForm}
+                                onClick={() => { resetForm(); setResponsavel(''); }}
                                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded shadow-md transition-all duration-200"
                             >
                                 Cancelar
@@ -385,7 +464,7 @@ const AlunosDashboard = () => {
             {
                 selectedAluno && (
                     <SpanCard data={selectedAluno} position={cardPosition} setCardPosition={setCardPosition} />
-                    
+
 
                 )
             }

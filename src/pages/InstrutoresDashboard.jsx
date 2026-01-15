@@ -132,7 +132,7 @@ const InstrutoresDashboard = () => {
             </button>
 
             {isFormVisible && (
-                <div className="bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
+                <div className="bg-neutral-200 p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Instrutor' : 'Adicionar Novo Instrutor'}</h2>
                     <form onSubmit={(e) => {
                         e.preventDefault();
