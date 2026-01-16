@@ -13,6 +13,8 @@ const useAlunoForm = () => {
     const [editingId, setEditingId] = useState(null);
     const [graus, setGraus] = useState('');
     const [responsavel, setResponsavel] = useState('');
+    const [data_graduacao, setDataGraduacao] = useState('');
+    const [data_grau, setDataGrau] = useState('');
 
     const resetForm = () => {
         setNome('');
@@ -27,6 +29,8 @@ const useAlunoForm = () => {
         setAtivo(true);
         setGraus('');
         setResponsavel('');
+        setDataGraduacao('');
+        setDataGrau('');
     };
 
     const handleFileChange = (e) => {
@@ -61,6 +65,10 @@ const useAlunoForm = () => {
         setGraus,
         responsavel,
         setResponsavel,
+        data_graduacao,
+        data_grau,
+        setDataGraduacao,
+        setDataGrau,
     };
 };
 

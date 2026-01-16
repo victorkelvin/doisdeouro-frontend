@@ -18,9 +18,6 @@ const AlunosDashboard = () => {
     const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
     const cardRef = useRef(null);
 
-    // Responsável para alunos menores de 18
-    const [responsavel, setResponsavel] = useState('');
-
     // filtros por checkbox
     const [selectedGraduacoes, setSelectedGraduacoes] = useState([]);
     const [selectedTurmas, setSelectedTurmas] = useState([]);
@@ -49,6 +46,12 @@ const AlunosDashboard = () => {
         resetForm,
         handleFileChange,
         setEditingId,
+        responsavel,
+        setResponsavel,
+        data_graduacao,
+        data_grau,
+        setDataGraduacao,
+        setDataGrau,
     } = useAlunoForm();
 
     const loadData = async () => {
@@ -126,6 +129,8 @@ const AlunosDashboard = () => {
             formData.append('turma', turma);
             formData.append('ativo', ativo);
             formData.append('responsavel', responsavel || '');
+            formData.append('data_graduacao', data_graduacao || '');
+            formData.append('data_grau', data_grau || '');
             if (foto) {
                 formData.append('foto', foto);
             }
@@ -157,6 +162,8 @@ const AlunosDashboard = () => {
         setFotoPreview(aluno.foto_base64 || '');
         setResponsavel(aluno.responsavel || '');
         setGraus(aluno.graus || '');
+        setDataGraduacao(aluno.data_graduacao || '');
+        setDataGrau(aluno.data_grau || '');
     };
 
     const toggleAtivoStatus = async (aluno) => {
@@ -171,6 +178,8 @@ const AlunosDashboard = () => {
         formData.append('graus', aluno.graus || '');
         formData.append('turma', aluno.turma || '');
         formData.append('responsavel', aluno.responsavel || '');
+        formData.append('data_graduacao', aluno.data_graduacao || '');
+        formData.append('data_grau', aluno.data_grau || '');
         if (aluno.foto_file) {
             formData.append('foto', aluno.foto_file);
         }
@@ -322,6 +331,13 @@ const AlunosDashboard = () => {
                                         </option>
                                     ))}
                                 </select>
+                                <label className="block text-gray-700 text-sm font-bold mb-1 mt-1">Data da última graduação</label>
+                                <input
+                                    type="date"
+                                    value={data_graduacao}
+                                    onChange={(e) => setDataGraduacao(e.target.value)}
+                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                />
                             </div>
 
                             <div className="mb-3">
@@ -334,6 +350,13 @@ const AlunosDashboard = () => {
                                     value={graus}
                                     accept='0-4'
                                     onChange={(e) => setGraus(e.target.value === '' ? '' : Number(e.target.value))}
+                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                />
+                                <label className="block text-gray-700 text-sm font-bold mb-1 mt-1">Data do último grau</label>
+                                <input
+                                    type="date"
+                                    value={data_grau}
+                                    onChange={(e) => setDataGrau(e.target.value)}
                                     className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
                                 />
                             </div>
@@ -397,31 +420,31 @@ const AlunosDashboard = () => {
 
             {/* Filtros por Graduação e Turma */}
             <div className="flex flex-col sm:flex-row sm:space-x-4 mb-4">
-                
+
                 <div className="mb-3 sm:w-1/5 w-fit">
                     <div className="flex flex-wrap gap-2 w-fit">
 
-                        <MultiSelect 
+                        <MultiSelect
                             label={"Graduações"}
                             options={graduacaoOptions}
                             // passar para o Select o array de objetos correspondente aos ids selecionados
                             value={graduacaoOptions.filter(opt => selectedGraduacoes.includes(opt.value))}
                             // garantir que o select ocupe toda a coluna
                             className="w-fit"
-                             onChange={(selectedOptions) => {
-                                 // selectedOptions === null quando vazio
-                                 if (!selectedOptions) {
-                                     setSelectedGraduacoes([]);
-                                     return;
-                                 }
-                                 // armazenar apenas os ids como strings
-                                 setSelectedGraduacoes(selectedOptions.map(o => String(o.value)));
-                             }}
-                             placeholder="Selecione as graduações..."
-                         />
-                     </div>
-                 </div>
- 
+                            onChange={(selectedOptions) => {
+                                // selectedOptions === null quando vazio
+                                if (!selectedOptions) {
+                                    setSelectedGraduacoes([]);
+                                    return;
+                                }
+                                // armazenar apenas os ids como strings
+                                setSelectedGraduacoes(selectedOptions.map(o => String(o.value)));
+                            }}
+                            placeholder="Selecione as graduações..."
+                        />
+                    </div>
+                </div>
+
                 <div className="mb-3 sm:w-1/5 w-full">
                     <div className="flex flex-wrap gap-2 w-fit">
 
@@ -431,30 +454,30 @@ const AlunosDashboard = () => {
                             // passar para o Select o array de objetos correspondente aos ids selecionados
                             value={turmaOptions.filter(opt => selectedTurmas.includes(opt.value))}
                             className="w-full"
-                             onChange={(selectedOptions) => {
-                                 // selectedOptions === null quando vazio
-                                 if (!selectedOptions) {
-                                     setSelectedTurmas([]);
-                                     return;
-                                 }
-                                 // armazenar apenas os ids como strings
-                                 setSelectedTurmas(selectedOptions.map(o => String(o.value)));
-                             }}
-                             placeholder="Selecione as Turmas..."
-                         />
-                     </div>
-                 </div>
- 
+                            onChange={(selectedOptions) => {
+                                // selectedOptions === null quando vazio
+                                if (!selectedOptions) {
+                                    setSelectedTurmas([]);
+                                    return;
+                                }
+                                // armazenar apenas os ids como strings
+                                setSelectedTurmas(selectedOptions.map(o => String(o.value)));
+                            }}
+                            placeholder="Selecione as Turmas..."
+                        />
+                    </div>
+                </div>
+
                 <div className="flex items-center sm:w-1/5 w-full ">
-                     <button
-                         type="button"
-                         onClick={() => { setSelectedGraduacoes([]); setSelectedTurmas([]); }}
-                         className="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-3 rounded shadow-md transition-all duration-200 h-10"
-                     >
-                         Limpar filtros
-                     </button>
-                 </div>
-             </div>
+                    <button
+                        type="button"
+                        onClick={() => { setSelectedGraduacoes([]); setSelectedTurmas([]); }}
+                        className="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-3 rounded shadow-md transition-all duration-200 h-10"
+                    >
+                        Limpar filtros
+                    </button>
+                </div>
+            </div>
 
             <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
