@@ -5,7 +5,7 @@ import { fetchAlunos, fetchGraduacoes, createAluno, updateAluno } from '../servi
 import { fetchTurmas } from '../services/turmasApi';
 import SearchBar from '../components/SearchBar';
 import SpanCard from '../components/SpanCard';
-
+import MultiSelect from '../components/MultiSelect';
 
 const AlunosDashboard = () => {
     const [alunos, setAlunos] = useState([]);
@@ -20,6 +20,10 @@ const AlunosDashboard = () => {
 
     // Responsável para alunos menores de 18
     const [responsavel, setResponsavel] = useState('');
+
+    // filtros por checkbox
+    const [selectedGraduacoes, setSelectedGraduacoes] = useState([]);
+    const [selectedTurmas, setSelectedTurmas] = useState([]);
 
     const {
         nome,
@@ -172,12 +176,24 @@ const AlunosDashboard = () => {
         }
 
         await updateAluno(aluno.id, formData);
-        loadData(); 
+        loadData();
     };
 
-    const filteredAlunos = filterData(alunos, searchTerm);
+    // aplica busca + filtros de graduação e turma (se houver algum marcado)
+    const filteredAlunos = filterData(alunos, searchTerm).filter((a) => {
+        const gradId = a.graduacao != null ? String(a.graduacao) : '';
+        const turmaId = a.turma != null ? String(a.turma) : '';
+
+        const gradOk = selectedGraduacoes.length === 0 || selectedGraduacoes.includes(gradId);
+        const turmaOk = selectedTurmas.length === 0 || selectedTurmas.includes(turmaId);
+        return gradOk && turmaOk;
+    });
     const sortedAlunos = sortData(filteredAlunos, sortDirection);
 
+
+    // nova constante de opções para reutilizar no JSX
+    const graduacaoOptions = graduacoes.map(g => ({ value: String(g.id), label: g.faixa }));
+    const turmaOptions = turmas.map(t => ({ value: String(t.id), label: t.nome }));
 
     return (
         <div className="p-4 relative">
@@ -339,7 +355,9 @@ const AlunosDashboard = () => {
                             </div>
 
                         </div>
-                        {/* Add the checkbox for "Ativo" status */}
+
+
+
                         <div className="flex items-center mb-3">
                             <input
                                 id="ativo-checkbox"
@@ -372,7 +390,72 @@ const AlunosDashboard = () => {
                 </div>
             )}
 
+
+            {/* Tabela de alunos */}
+
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder='Buscar Aluno' />
+
+            {/* Filtros por Graduação e Turma */}
+            <div className="flex flex-col sm:flex-row sm:space-x-4 mb-4">
+                
+                <div className="mb-3 sm:w-1/5 w-fit">
+                    <div className="flex flex-wrap gap-2 w-fit">
+
+                        <MultiSelect 
+                            label={"Graduações"}
+                            options={graduacaoOptions}
+                            // passar para o Select o array de objetos correspondente aos ids selecionados
+                            value={graduacaoOptions.filter(opt => selectedGraduacoes.includes(opt.value))}
+                            // garantir que o select ocupe toda a coluna
+                            className="w-fit"
+                             onChange={(selectedOptions) => {
+                                 // selectedOptions === null quando vazio
+                                 if (!selectedOptions) {
+                                     setSelectedGraduacoes([]);
+                                     return;
+                                 }
+                                 // armazenar apenas os ids como strings
+                                 setSelectedGraduacoes(selectedOptions.map(o => String(o.value)));
+                             }}
+                             placeholder="Selecione as graduações..."
+                         />
+                     </div>
+                 </div>
+ 
+                <div className="mb-3 sm:w-1/5 w-full">
+                    <div className="flex flex-wrap gap-2 w-fit">
+
+                        <MultiSelect
+                            label={"Turmas"}
+                            options={turmaOptions}
+                            // passar para o Select o array de objetos correspondente aos ids selecionados
+                            value={turmaOptions.filter(opt => selectedTurmas.includes(opt.value))}
+                            className="w-full"
+                             onChange={(selectedOptions) => {
+                                 // selectedOptions === null quando vazio
+                                 if (!selectedOptions) {
+                                     setSelectedTurmas([]);
+                                     return;
+                                 }
+                                 // armazenar apenas os ids como strings
+                                 setSelectedTurmas(selectedOptions.map(o => String(o.value)));
+                             }}
+                             placeholder="Selecione as Turmas..."
+                         />
+                     </div>
+                 </div>
+ 
+                <div className="flex items-center sm:w-1/5 w-full ">
+                     <button
+                         type="button"
+                         onClick={() => { setSelectedGraduacoes([]); setSelectedTurmas([]); }}
+                         className="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-3 rounded shadow-md transition-all duration-200 h-10"
+                     >
+                         Limpar filtros
+                     </button>
+                 </div>
+             </div>
+
             <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -411,12 +494,11 @@ const AlunosDashboard = () => {
                             </th>
                         </tr>
                     </thead>
+
                     <tbody className="bg-white divide-y divide-gray-200">
                         {sortedAlunos.map((aluno) => {
-                            // Find the corresponding graduation object
                             const graduacaoObj = graduacoes.find(grad => grad.id === aluno.graduacao);
                             const turmaObj = turmas.find(turma => turma.id === aluno.turma);
-                            // Convert ativo to boolean for display
                             const isAtivo = aluno.ativo === true || aluno.ativo === "true";
 
                             return (
