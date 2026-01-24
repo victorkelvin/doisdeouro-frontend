@@ -13,7 +13,7 @@ const ImageUploadPreview = ({
     return (
         <div className={`sm:col-span-${colSpan}`}>
             {label && (
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+                <label className="block text-gray-700 text-sm font-bold mb-1">
                     {label}
                     {required && <span className="text-red-500">*</span>}
                 </label>
@@ -36,7 +36,7 @@ const ImageUploadPreview = ({
                 />
             </div>
             {preview && (
-                <div className="mt-2 mb-3">
+                <div className="mt-2 mb-1">
                     <img
                         src={preview}
                         alt="Preview"

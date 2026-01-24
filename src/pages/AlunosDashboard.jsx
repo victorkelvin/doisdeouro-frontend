@@ -209,7 +209,7 @@ const AlunosDashboard = () => {
     return (
         <div className="w-dvw p-3 sm:p-4 relative">
             <h1 className="text-2xl sm:text-3xl font-bold mb-4">Alunos</h1>
-            
+
             {/* Seção de Botões */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4'>
                 <button
@@ -256,7 +256,7 @@ const AlunosDashboard = () => {
                 <div className="bg-neutral-200 p-4 sm:p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Aluno' : 'Adicionar Novo Aluno'}</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        
+
                         {/* Linha 1: Data de Nascimento e Nome */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <FormDateInput
@@ -356,18 +356,19 @@ const AlunosDashboard = () => {
                                 preview={fotoPreview}
                                 accept="image/jpeg, image/png"
                             />
-                            <div className="flex items-end">
-                                <FormToggle
-                                    label="Aluno Ativo"
-                                    value={ativo}
-                                    onChange={(e) => setAtivo(e)}
-                                    description="Ativa ou desativa o acesso do aluno"
-                                />
-                            </div>
+                        </div>
+                        <div className="flex">
+                            <FormToggle
+                                label="Aluno Ativo"
+                                value={ativo}
+                                onChange={(e) => setAtivo(e)}
+                                description="Ativa ou desativa o acesso do aluno"
+                            />
+
                         </div>
 
                         {/* Botões de ação */}
-                        <div className="flex flex-col sm:flex-row gap-2 pt-4">
+                        <div className="flex flex-col sm:flex-row gap-2 pt-1">
                             <button
                                 type="submit"
                                 className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded shadow-md transition-all duration-200 flex-1 sm:flex-none"
@@ -376,7 +377,7 @@ const AlunosDashboard = () => {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => { resetForm(); setResponsavel(''); }}
+                                onClick={() => { resetForm(); }}
                                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded shadow-md transition-all duration-200 flex-1 sm:flex-none"
                             >
                                 Cancelar
@@ -437,7 +438,7 @@ const AlunosDashboard = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md overflow-x-auto border border-gray-200">
+            <div className="bg-white rounded-lg shadow-md border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
@@ -510,7 +511,7 @@ const AlunosDashboard = () => {
                                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">{turmaObj ? turmaObj.nome : 'N/A'}</td>
                                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
                                         <button
-                                            onClick={() => handleEdit(aluno)}
+                                            onClick={() => { handleEdit(aluno) }}
                                             className="bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1 transition-colors duration-200 text-sm sm:text-base"
                                         >
                                             Editar
