@@ -23,7 +23,7 @@ const AlunosDashboard = () => {
     const [sortDirection, setSortDirection] = useState('asc');
     const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
     const cardRef = useRef(null);
-    const [linkExpirationTime, setLinkExpirationTime] = useState('');
+    // const [linkExpirationTime, setLinkExpirationTime] = useState('');
 
     const [selectedGraduacoes, setSelectedGraduacoes] = useState([]);
     const [selectedTurmas, setSelectedTurmas] = useState([]);
