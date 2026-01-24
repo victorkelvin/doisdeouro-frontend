@@ -6,6 +6,12 @@ import { fetchTurmas } from '../services/turmasApi';
 import SearchBar from '../components/SearchBar';
 import SpanCard from '../components/SpanCard';
 import MultiSelect from '../components/MultiSelect';
+import FormInput from '../components/FormInput';
+import FormSelect from '../components/FormSelect';
+import FormDateInput from '../components/FormDateInput';
+import FormToggle from '../components/FormToggle';
+import ImageUploadPreview from '../components/ImageUploadPreview';
+import ConditionalField from '../components/ConditionalField';
 
 const AlunosDashboard = () => {
     const [alunos, setAlunos] = useState([]);
@@ -17,8 +23,8 @@ const AlunosDashboard = () => {
     const [sortDirection, setSortDirection] = useState('asc');
     const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
     const cardRef = useRef(null);
+    const [linkExpirationTime, setLinkExpirationTime] = useState('');
 
-    // filtros por checkbox
     const [selectedGraduacoes, setSelectedGraduacoes] = useState([]);
     const [selectedTurmas, setSelectedTurmas] = useState([]);
 
@@ -85,7 +91,7 @@ const AlunosDashboard = () => {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        let x = e.clientX + 10; // Offset from cursor
+        let x = e.clientX + 10;
         let y = e.clientY + 10;
 
         setTimeout(() => {
@@ -93,12 +99,10 @@ const AlunosDashboard = () => {
                 const cardWidth = cardRef.current.offsetWidth;
                 const cardHeight = cardRef.current.offsetHeight;
 
-                // Adjust horizontal position if needed
                 if (x + cardWidth > viewportWidth) {
                     x = e.clientX - cardWidth - 10;
                 }
 
-                // Adjust vertical position if needed
                 if (y + cardHeight > viewportHeight) {
                     y = e.clientY - cardHeight - 10;
                 }
@@ -143,7 +147,7 @@ const AlunosDashboard = () => {
 
             resetForm();
             setResponsavel('');
-            loadData(); // Reload data after submission
+            loadData();
         } catch (error) {
             console.error('Error submitting form:', error);
         }
@@ -188,7 +192,6 @@ const AlunosDashboard = () => {
         loadData();
     };
 
-    // aplica busca + filtros de graduação e turma (se houver algum marcado)
     const filteredAlunos = filterData(alunos, searchTerm).filter((a) => {
         const gradId = a.graduacao != null ? String(a.graduacao) : '';
         const turmaId = a.turma != null ? String(a.turma) : '';
@@ -200,211 +203,181 @@ const AlunosDashboard = () => {
     const sortedAlunos = sortData(filteredAlunos, sortDirection);
 
 
-    // nova constante de opções para reutilizar no JSX
     const graduacaoOptions = graduacoes.map(g => ({ value: String(g.id), label: g.faixa }));
     const turmaOptions = turmas.map(t => ({ value: String(t.id), label: t.nome }));
 
     return (
-        <div className="p-4 relative">
-            <h1 className="text-2xl font-bold mb-4">Alunos</h1>
-            <button
-                onClick={() => setIsFormVisible(!isFormVisible)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded px-4 py-2 mb-4 flex items-center transition-all duration-200 shadow-md"
-            >
-                {isFormVisible ? (
-                    <>
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                        <span>Ocultar Formulário</span>
-                    </>
-                ) : (
-                    <>
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                        </svg>
-                        <span>Mostrar Formulário</span>
-                    </>
-                )}
-            </button>
+        <div className="p-3 sm:p-4 relative">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-4">Alunos</h1>
+            
+            {/* Seção de Botões */}
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4'>
+                <button
+                    onClick={() => setIsFormVisible(!isFormVisible)}
+                    className="bg-indigo-600 hover:bg-indigo-800 text-white rounded px-4 py-2 flex items-center justify-center transition-all duration-200 shadow-md w-full sm:w-auto"
+                >
+                    {isFormVisible ? (
+                        <>
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                            <span>Ocultar Formulário</span>
+                        </>
+                    ) : (
+                        <>
+                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                            </svg>
+                            <span>Mostrar Formulário</span>
+                        </>
+                    )}
+                </button>
+
+                <div className='flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-end'>
+                    <input
+                        type="number"
+                        min="1"
+                        placeholder="Horas"
+                        value={linkExpirationTime}
+                        onChange={(e) => setLinkExpirationTime(e.target.value)}
+                        className="border rounded p-2 w-full sm:w-24 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent text-center"
+                    />
+                    <button
+                        className='bg-yellow-500 hover:bg-yellow-400 text-white rounded px-4 py-2 flex items-center justify-center transition-all duration-200 shadow-md whitespace-nowrap w-full sm:w-auto'
+                    >
+                        Gerar Link
+                    </button>
+                </div>
+            </div>
+
+
 
             {isFormVisible && (
-                <div className="bg-neutral-200 p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
+                <div className="bg-neutral-200 p-4 sm:p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Aluno' : 'Adicionar Novo Aluno'}</h2>
-                    <form onSubmit={handleSubmit}>
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Nome</label>
-                        <input
-                            type="text"
-                            placeholder="Nome"
-                            value={nome}
-                            onChange={(e) => setNome(e.target.value)}
-                            required
-                            className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                        />
-
-                        {showResponsavel && (
-                            <div className="mb-3">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Responsável (Aluno menor de 18)</label>
-                                <input
-                                    type="text"
-                                    placeholder="Nome do responsável"
-                                    value={responsavel}
-                                    onChange={(e) => setResponsavel(e.target.value)}
-                                    required
-                                    className="border rounded p-2 mb-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        
+                        {/* Linha 1: Data de Nascimento e Nome */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <FormDateInput
+                                label="Data de Nascimento"
+                                value={data_nascimento}
+                                onChange={(e) => setDataNascimento(e.target.value)}
+                                colSpan="1"
+                            />
+                            <div className="sm:col-span-2">
+                                <FormInput
+                                    label="Nome"
+                                    value={nome}
+                                    onChange={(e) => setNome(e.target.value)}
+                                    placeholder="Nome do Aluno"
+                                    required={true}
                                 />
                             </div>
-                        )}
-
-                        <div className='sm:grid sm:grid-cols-3 sm:gap-4'>
-
-                            <div className="sm:col-span-1">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento</label>
-                                <div className="mt-2">
-                                    <input
-                                        type="date"
-                                        value={data_nascimento}
-                                        onChange={(e) => setDataNascimento(e.target.value)}
-                                        className="border rounded w-full p-2 mb-3  focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-1">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Contato</label>
-                                <div className="mt-2">
-                                    <input
-                                        type="text"
-                                        placeholder="Contato"
-                                        value={contato}
-                                        onChange={(e) => setContato(e.target.value)}
-                                        className="border rounded w-full p-2 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="sm:col-span-1">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                                <div className="mt-2">
-                                    <input
-                                        type="email"
-                                        placeholder="Email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="border rounded w-full p-2 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
-
                         </div>
 
-
-                        <div className="mb-3">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Foto</label>
-                            <input
-                                type="file"
-                                accept="image/jpeg, image/png"
-                                onChange={handleFileChange}
-                                className="border rounded p-2 w-full bg-white"
+                        {/* Campo Responsável (condicional) */}
+                        <ConditionalField show={showResponsavel}>
+                            <FormInput
+                                label="Responsável (Aluno menor de 18)"
+                                value={responsavel}
+                                onChange={(e) => setResponsavel(e.target.value)}
+                                placeholder="Nome do responsável"
+                                required={true}
                             />
-                            {fotoPreview && (
-                                <div className="mt-2">
-                                    <img src={fotoPreview} alt="Preview" className="w-32 h-32 object-cover rounded border border-gray-300" />
-                                </div>
-                            )}
+                        </ConditionalField>
+
+                        {/* Linha 2: Contato e Email */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormInput
+                                label="Contato"
+                                value={contato}
+                                onChange={(e) => setContato(e.target.value)}
+                                type="text"
+                                placeholder="(XX) XXXXX-XXXX"
+                            />
+                            <FormInput
+                                label="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                type="email"
+                                placeholder="email@exemplo.com"
+                            />
                         </div>
 
-
-                        <div className='sm:grid sm:grid-cols-3 sm:gap-4 mb-4'>
-
-                            <div className="mb-3">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Graduação</label>
-                                <select
+                        {/* Linha 3: Graduação, Graus e Turma */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <FormSelect
+                                    label="Graduação"
                                     value={graduacao}
                                     onChange={(e) => setGraduacao(e.target.value)}
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                >
-                                    <option value="">Selecione a Graduação</option>
-                                    {graduacoes.map((grad) => (
-                                        <option key={grad.id} value={grad.id}>
-                                            {grad.faixa}
-                                        </option>
-                                    ))}
-                                </select>
-                                <label className="block text-gray-700 text-sm font-bold mb-1 mt-1">Data da última graduação</label>
-                                <input
-                                    type="date"
+                                    options={graduacoes}
+                                    placeholder="Selecione a Graduação"
+                                />
+                                <FormDateInput
+                                    label="Data da última graduação"
                                     value={data_graduacao}
                                     onChange={(e) => setDataGraduacao(e.target.value)}
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                    colSpan="1"
                                 />
                             </div>
 
-                            <div className="mb-3">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Graus</label>
-                                <input
-                                    type="number"
-                                    min={0}
-                                    max={4}
-                                    step={1}
+                            <div>
+                                <FormInput
+                                    label="Graus"
                                     value={graus}
-                                    accept='0-4'
                                     onChange={(e) => setGraus(e.target.value === '' ? '' : Number(e.target.value))}
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                    type="number"
+                                    placeholder="0-4"
                                 />
-                                <label className="block text-gray-700 text-sm font-bold mb-1 mt-1">Data do último grau</label>
-                                <input
-                                    type="date"
+                                <FormDateInput
+                                    label="Data do último grau"
                                     value={data_grau}
                                     onChange={(e) => setDataGrau(e.target.value)}
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                                    colSpan="1"
                                 />
                             </div>
 
-                            <div className="mb-3">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Turma</label>
-                                <select
-                                    value={turma}
-                                    onChange={(e) => setTurma(e.target.value)}
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                >
-                                    <option value="">Selecione a Turma</option>
-                                    {turmas.map((turma) => (
-                                        <option key={turma.id} value={turma.id}>
-                                            {turma.nome}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                        </div>
-
-
-
-                        <div className="flex items-center mb-3">
-                            <input
-                                id="ativo-checkbox"
-                                type="checkbox"
-                                checked={ativo}
-                                onChange={(e) => setAtivo(e.target.checked)}
-                                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            <FormSelect
+                                label="Turma"
+                                value={turma}
+                                onChange={(e) => setTurma(e.target.value)}
+                                options={turmas}
+                                placeholder="Selecione a Turma"
                             />
-                            <label htmlFor="ativo-checkbox" className="ml-2 block text-sm text-gray-700 font-bold">
-                                Aluno Ativo
-                            </label>
                         </div>
 
-                        <div className="flex space-x-2">
+                        {/* Linha 4: Foto e Status */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <ImageUploadPreview
+                                label="Foto"
+                                onFileChange={handleFileChange}
+                                preview={fotoPreview}
+                                accept="image/jpeg, image/png"
+                            />
+                            <div className="flex items-end">
+                                <FormToggle
+                                    label="Aluno Ativo"
+                                    value={ativo}
+                                    onChange={(e) => setAtivo(e)}
+                                    description="Ativa ou desativa o acesso do aluno"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Botões de ação */}
+                        <div className="flex flex-col sm:flex-row gap-2 pt-4">
                             <button
                                 type="submit"
-                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded shadow-md transition-all duration-200"
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded shadow-md transition-all duration-200 flex-1 sm:flex-none"
                             >
                                 {editingId ? 'Atualizar' : 'Adicionar'}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => { resetForm(); setResponsavel(''); }}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded shadow-md transition-all duration-200"
+                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded shadow-md transition-all duration-200 flex-1 sm:flex-none"
                             >
                                 Cancelar
                             </button>
@@ -415,82 +388,67 @@ const AlunosDashboard = () => {
 
 
             {/* Tabela de alunos */}
-
-            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder='Buscar Aluno' />
+            <div className="mb-4">
+                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder='Buscar Aluno' />
+            </div>
 
             {/* Filtros por Graduação e Turma */}
-            <div className="flex flex-col sm:flex-row sm:space-x-4 mb-4">
-
-                <div className="mb-3 sm:w-1/5 w-fit">
-                    <div className="flex flex-wrap gap-2 w-fit">
-
-                        <MultiSelect
-                            label={"Graduações"}
-                            options={graduacaoOptions}
-                            // passar para o Select o array de objetos correspondente aos ids selecionados
-                            value={graduacaoOptions.filter(opt => selectedGraduacoes.includes(opt.value))}
-                            // garantir que o select ocupe toda a coluna
-                            className="w-fit"
-                            onChange={(selectedOptions) => {
-                                // selectedOptions === null quando vazio
-                                if (!selectedOptions) {
-                                    setSelectedGraduacoes([]);
-                                    return;
-                                }
-                                // armazenar apenas os ids como strings
-                                setSelectedGraduacoes(selectedOptions.map(o => String(o.value)));
-                            }}
-                            placeholder="Selecione as graduações..."
-                        />
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div className="md:col-span-1">
+                    <MultiSelect
+                        label={"Graduações"}
+                        options={graduacaoOptions}
+                        value={graduacaoOptions.filter(opt => selectedGraduacoes.includes(opt.value))}
+                        onChange={(selectedOptions) => {
+                            if (!selectedOptions) {
+                                setSelectedGraduacoes([]);
+                                return;
+                            }
+                            setSelectedGraduacoes(selectedOptions.map(o => String(o.value)));
+                        }}
+                        placeholder="Selecione as graduações..."
+                    />
                 </div>
 
-                <div className="mb-3 sm:w-1/5 w-full">
-                    <div className="flex flex-wrap gap-2 w-fit">
-
-                        <MultiSelect
-                            label={"Turmas"}
-                            options={turmaOptions}
-                            // passar para o Select o array de objetos correspondente aos ids selecionados
-                            value={turmaOptions.filter(opt => selectedTurmas.includes(opt.value))}
-                            className="w-full"
-                            onChange={(selectedOptions) => {
-                                // selectedOptions === null quando vazio
-                                if (!selectedOptions) {
-                                    setSelectedTurmas([]);
-                                    return;
-                                }
-                                // armazenar apenas os ids como strings
-                                setSelectedTurmas(selectedOptions.map(o => String(o.value)));
-                            }}
-                            placeholder="Selecione as Turmas..."
-                        />
-                    </div>
+                <div className="md:col-span-1">
+                    <MultiSelect
+                        label={"Turmas"}
+                        options={turmaOptions}
+                        value={turmaOptions.filter(opt => selectedTurmas.includes(opt.value))}
+                        onChange={(selectedOptions) => {
+                            if (!selectedOptions) {
+                                setSelectedTurmas([]);
+                                return;
+                            }
+                            setSelectedTurmas(selectedOptions.map(o => String(o.value)));
+                        }}
+                        placeholder="Selecione as Turmas..."
+                    />
                 </div>
 
-                <div className="flex items-center sm:w-1/5 w-full ">
+                <div className="flex items-end md:col-span-1">
                     <button
                         type="button"
                         onClick={() => { setSelectedGraduacoes([]); setSelectedTurmas([]); }}
-                        className="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-3 rounded shadow-md transition-all duration-200 h-10"
+                        className="w-full md:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded shadow-md transition-all duration-200 h-auto"
                     >
                         Limpar filtros
                     </button>
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <div className="bg-white rounded-lg shadow-md overflow-x-auto border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div className="flex items-center space-x-1">
                                     <span>Status</span>
                                 </div>
                             </th>
 
                             <th
-                                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer  hover:bg-gray-100`}
+                                className={`px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100`}
                                 onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
                             >
                                 <div className="flex items-center space-x-1">
@@ -499,20 +457,20 @@ const AlunosDashboard = () => {
                                 </div>
                             </th>
                             <th
-                                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer  hover:bg-gray-100`}
+                                className={`px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden sm:table-cell`}
                             >
                                 <div className="flex items-center space-x-1">
                                     <span>Graduação</span>
                                 </div>
                             </th>
                             <th
-                                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer  hover:bg-gray-100`}
+                                className={`px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden md:table-cell`}
                             >
                                 <div className="flex items-center space-x-1">
                                     <span>Turma</span>
                                 </div>
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-right">
                                 Ações
                             </th>
                         </tr>
@@ -531,7 +489,7 @@ const AlunosDashboard = () => {
                                     onMouseLeave={handleMouseLeave}
                                     className={`hover:bg-gray-50 ${!isAtivo ? 'bg-gray-50' : ''}`}
                                 >
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
                                             <input
                                                 type="checkbox"
@@ -547,13 +505,13 @@ const AlunosDashboard = () => {
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{aluno.nome}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{graduacaoObj ? graduacaoObj.faixa : 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{turmaObj ? turmaObj.nome : 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{aluno.nome}</td>
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{graduacaoObj ? graduacaoObj.faixa : 'N/A'}</td>
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">{turmaObj ? turmaObj.nome : 'N/A'}</td>
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
                                         <button
                                             onClick={() => handleEdit(aluno)}
-                                            className="bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1 transition-colors duration-200"
+                                            className="bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1 transition-colors duration-200 text-sm sm:text-base"
                                         >
                                             Editar
                                         </button>
@@ -568,8 +526,6 @@ const AlunosDashboard = () => {
             {
                 selectedAluno && (
                     <SpanCard data={selectedAluno} position={cardPosition} setCardPosition={setCardPosition} />
-
-
                 )
             }
         </div >

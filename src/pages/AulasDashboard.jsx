@@ -9,6 +9,9 @@ import { fetchInstrutores } from '../services/instrutoresApi';
 import SearchBar from '../components/SearchBar';
 import MultiSelect from '../components/MultiSelect';
 import AlunoCardModal from '../components/AlunoCardModal';
+import FormDateInput from '../components/FormDateInput';
+import FormSelect from '../components/FormSelect';
+import FormInput from '../components/FormInput';
 
 const AulasDashboard = () => {
     const [aulas, setAulas] = useState([]);
@@ -154,11 +157,11 @@ const AulasDashboard = () => {
     };
 
     return (
-        <div className="p-4 relative">
-            <h1 className="text-2xl font-bold mb-4">Registro de Aulas</h1>
+        <div className="p-3 sm:p-4 relative">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-4">Registro de Aulas</h1>
             <button
                 onClick={() => setIsFormVisible(!isFormVisible)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded px-4 py-2 mb-4 flex items-center transition-all duration-200 shadow-md"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white rounded px-4 py-2 mb-4 flex items-center transition-all duration-200 shadow-md w-full sm:w-auto"
             >
                 {isFormVisible ? (
                     <>
@@ -178,41 +181,33 @@ const AulasDashboard = () => {
             </button>
 
             {isFormVisible && (
-                <div className="bg-neutral-200 p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
+                <div className="bg-neutral-200 p-4 sm:p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Aula' : 'Registrar Nova Aula'}</h2>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        
+                        {/* Linha 1: Data e Turma */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormDateInput
+                                label="Data"
+                                value={data ? data.split('T')[0] : ''}
+                                onChange={(e) => setData(e.target.value)}
+                                required={true}
+                            />
+                            <FormSelect
+                                label="Turma"
+                                value={turma?.id || ''}
+                                onChange={(e) => {
+                                    const selectedTurma = turmas.find(t => t.id.toString() === e.target.value);
+                                    setTurma(selectedTurma || {});
+                                }}
+                                options={turmas}
+                                placeholder="Selecione a Turma"
+                                required={true}
+                            />
+                        </div>
+
+                        {/* Linha 2: Instrutores e Alunos */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Data</label>
-                                <input
-                                    type="date"
-                                    value={data ? data.split('T')[0] : ''}
-                                    onChange={(e) => setData(e.target.value)}
-                                    required
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Turma</label>
-                                <select
-                                    value={turma?.id || ''}
-                                    onChange={(e) => {
-                                        const selectedTurma = turmas.find(t => t.id.toString() === e.target.value);
-                                        setTurma(selectedTurma || {});
-                                    }}
-                                    required
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                >
-                                    <option value="">Selecione a Turma</option>
-                                    {turmas.map((t) => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.nome}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
                             <div>
                                 <MultiSelect
                                     label="Instrutores"
@@ -254,31 +249,28 @@ const AulasDashboard = () => {
                                     onCardViewClick={() => setIsAlunoModalOpen(true)}
                                 />
                             </div>
-
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Horário de Início</label>
-                                <input
-                                    type="time"
-                                    value={horario_inicio}
-                                    onChange={(e) => setHorarioInicio(e.target.value)}
-                                    required
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Horário de Fim</label>
-                                <input
-                                    type="time"
-                                    value={horario_fim}
-                                    onChange={(e) => setHorarioFim(e.target.value)}
-                                    required
-                                    className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
-                                />
-                            </div>
                         </div>
 
-                        <div className="mt-4">
+                        {/* Linha 3: Horários */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormInput
+                                label="Horário de Início"
+                                type="time"
+                                value={horario_inicio}
+                                onChange={(e) => setHorarioInicio(e.target.value)}
+                                required={true}
+                            />
+                            <FormInput
+                                label="Horário de Fim"
+                                type="time"
+                                value={horario_fim}
+                                onChange={(e) => setHorarioFim(e.target.value)}
+                                required={true}
+                            />
+                        </div>
+
+                        {/* Linha 4: Observação */}
+                        <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">Observação</label>
                             <textarea
                                 value={observacao}
@@ -288,19 +280,18 @@ const AulasDashboard = () => {
                             />
                         </div>
 
-                        <div className="flex space-x-2 mt-4">
+                        {/* Botões de ação */}
+                        <div className="flex flex-col sm:flex-row gap-2 pt-4">
                             <button
                                 type="submit"
-                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded shadow-md transition-all duration-200"
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded shadow-md transition-all duration-200 flex-1 sm:flex-none"
                             >
                                 {editingId ? 'Atualizar' : 'Registrar'}
                             </button>
-
-
                             <button
                                 type="button"
                                 onClick={resetForm}
-                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded shadow-md transition-all duration-200"
+                                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded shadow-md transition-all duration-200 flex-1 sm:flex-none"
                             >
                                 Cancelar
                             </button>
@@ -313,12 +304,12 @@ const AulasDashboard = () => {
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder="Buscar por data (DD/MM/AAAA)" />
             </div>
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <div className="bg-white rounded-lg shadow-md overflow-x-auto border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
                             <th
-                                className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100`}
+                                className={`px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100`}
                                 onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
                             >
                                 <div className="flex items-center space-x-1">
@@ -326,22 +317,22 @@ const AulasDashboard = () => {
                                     {renderSortIndicator(sortDirection)}
                                 </div>
                             </th>
-                            <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider`}>
+                            <th className={`px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell`}>
                                 <div className="flex items-center space-x-1">
                                     <span>Turma</span>
                                 </div>
                             </th>
-                            <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider`}>
+                            <th className={`px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell`}>
                                 <div className="flex items-center space-x-1">
                                     <span>Instrutores</span>
                                 </div>
                             </th>
-                            <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider`}>
+                            <th className={`px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell`}>
                                 <div className="flex items-center space-x-1">
                                     <span>Alunos</span>
                                 </div>
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-right">
                                 Ações
                             </th>
                         </tr>
@@ -353,34 +344,35 @@ const AulasDashboard = () => {
                                     key={aula.id}
                                     className="hover:bg-gray-50"
                                 >
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         {formatDate(aula.data)}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                         {aula.turma ? aula.turma.nome : 'N/A'}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                                         {aula.instrutores ? aula.instrutores.map((inst) => inst.nome).join(' | ') : 'N/A'}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
                                         <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
                                             {aula.alunos_presentes.length}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button
-                                            onClick={() => handleEdit(aula)}
-                                            className="bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1 transition-colors duration-200 w-20 m-1"
-                                        >
-                                            Editar
-                                        </button>
-                                        <br></br>
-                                        <button
-                                            onClick={() => handleExportarXLS(aula)}
-                                            className="bg-teal-500 hover:bg-teal-600 text-white rounded px-3 py-1 transition-colors duration-200 w-20 m-1"
-                                        >
-                                            Baixar .xls
-                                        </button>
+                                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                                        <div className="flex flex-col sm:flex-row gap-1 justify-end">
+                                            <button
+                                                onClick={() => handleEdit(aula)}
+                                                className="bg-amber-500 hover:bg-amber-600 text-white rounded px-3 py-1 transition-colors duration-200 text-sm"
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                onClick={() => handleExportarXLS(aula)}
+                                                className="bg-teal-500 hover:bg-teal-600 text-white rounded px-3 py-1 transition-colors duration-200 text-sm"
+                                            >
+                                                Baixar
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             );
