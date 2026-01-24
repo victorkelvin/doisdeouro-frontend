@@ -244,6 +244,7 @@ const AlunosDashboard = () => {
                     />
                     <button
                         className='bg-yellow-500 hover:bg-yellow-400 text-white rounded px-4 py-2 flex items-center justify-center transition-all duration-200 shadow-md whitespace-nowrap w-full sm:w-auto'
+                        // onClick={}
                     >
                         Gerar Link
                     </button>

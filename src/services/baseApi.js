@@ -2,11 +2,9 @@
 // e a URL interna para comunicação entre serviços no Railway
 let BASE_URL;
 
-// Verifica se estamos rodando no ambiente do cliente (navegador) ou servidor
 if (typeof window !== 'undefined') {
     BASE_URL = process.env.REACT_APP_API_URL || 'localhost:8000';
 } else {
-    // No servidor ou em ambiente de build, podemos usar a URL interna
     BASE_URL = process.env.REACT_APP_BACKEND_URL || 'localhost:8000';
 }
 
@@ -15,7 +13,6 @@ let API_URL;
 if (process.env.NODE_ENV === 'production') {
     API_URL = `https://${BASE_URL}/api/`;
 } else {
-    // Em desenvolvimento, usamos a URL interna
     API_URL = `http://${BASE_URL}/api/`;
 }
 
