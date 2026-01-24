@@ -25,8 +25,8 @@ const Main = () => {
     }, [location.pathname]);
 
     return (
-        <div className="flex h-screen overflow-hidden">
-            <div className="flex flex-1 flex-col">
+        <div className="flex h-dvh w-dvw">
+            <div className="flex flex-1 flex-col overflow-hidden">
                 <TopBar 
                     userId={user_id} 
                     selectedDashboard={selectedDashboard} 

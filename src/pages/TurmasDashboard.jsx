@@ -65,7 +65,7 @@ const TurmasDashboard = () => {
     };
 
     return (
-        <div className="p-4">
+        <div className="w-dvw h-full p-3 sm:p-4 relative">
             <h1 className="text-2xl font-bold mb-4">Turmas</h1>
             <form onSubmit={handleSubmit} className="mb-4">
                 <input
@@ -101,12 +101,12 @@ const TurmasDashboard = () => {
                 <button type="submit" className="bg-blue-500 text-white rounded p-2">{editingId ? 'Atualizar' : 'Adicionar'}</button>
                 <button type="button" onClick={resetForm} className="bg-gray-300 text-black rounded p-2 ml-2">Cancelar</button>
             </form>
-            <table className="min-w-full bg-white border border-gray-300">
+            <table className="w-full bg-white border border-gray-300">
                 <thead>
                     <tr>
                         <th className="border px-4 py-2">Nome</th>
-                        <th className="border px-4 py-2">Dias</th>
-                        <th className="border px-4 py-2">Horário</th>
+                        <th className="border px-4 py-2 hidden sm:table-cell">Dias</th>
+                        <th className="border px-4 py-2 hidden md:table-cell">Horário</th>
                         <th className="border px-4 py-2">Ações</th>
                     </tr>
                 </thead>
@@ -114,8 +114,8 @@ const TurmasDashboard = () => {
                     {turmas.map((turma) => (
                         <tr key={turma.id}>
                             <td className="border px-4 py-2">{turma.nome}</td>
-                            <td className="border px-4 py-2">{Array.isArray(turma.dias) ? turma.dias.join(', ') : turma.dias.split(',').join(', ')}</td>
-                            <td className="border px-4 py-2">{turma.horario}</td>
+                            <td className="border px-4 py-2 hidden sm:table-cell">{Array.isArray(turma.dias) ? turma.dias.join(', ') : turma.dias.split(',').join(', ')}</td>
+                            <td className="border px-4 py-2 hidden md:table-cell">{turma.horario}</td>
                             <td className="border px-4 py-2">
                                 <button onClick={() => handleEdit(turma)} className="bg-yellow-500 text-white rounded p-1">Editar</button>
                             </td>

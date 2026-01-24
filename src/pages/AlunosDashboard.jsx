@@ -207,7 +207,7 @@ const AlunosDashboard = () => {
     const turmaOptions = turmas.map(t => ({ value: String(t.id), label: t.nome }));
 
     return (
-        <div className="p-3 sm:p-4 relative">
+        <div className="w-dvw p-3 sm:p-4 relative">
             <h1 className="text-2xl sm:text-3xl font-bold mb-4">Alunos</h1>
             
             {/* Seção de Botões */}
@@ -393,7 +393,7 @@ const AlunosDashboard = () => {
             </div>
 
             {/* Filtros por Graduação e Turma */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div className="md:col-span-1">
                     <MultiSelect
                         label={"Graduações"}
@@ -470,7 +470,7 @@ const AlunosDashboard = () => {
                                     <span>Turma</span>
                                 </div>
                             </th>
-                            <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-right">
+                            <th className="px-3 sm:px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">
                                 Ações
                             </th>
                         </tr>

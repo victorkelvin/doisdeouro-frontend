@@ -8,7 +8,7 @@ function Footer({
 }) {
   return (
     <footer className="border-t-2 bg-gray-300 py-2">
-      <div className="container flex flex-col items-center justify-between gap-2 text-xs text-black sm:flex-row">
+      <div className="w-dvw flex flex-col items-center justify-between gap-2 text-xs text-black px-4 sm:flex-row">
         <p>
           © {new Date().getFullYear()} Academia Dois de Ouro. <br /> Desenvolvido por{" "}
           <span className="font-medium">{developerName}</span>

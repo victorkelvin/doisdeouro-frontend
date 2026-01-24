@@ -53,7 +53,7 @@ function TopBar({ userId, selectedDashboard, setSelectedDashboard, showText = tr
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16  items-center justify-between border-b px-4 shadow-sm bg-indigo-700 text-white">
+    <header className="sticky top-0 z-30 flex h-16  items-center justify-between border-b px-1 shadow-sm bg-indigo-700 text-white md:px-4">
       {/* Logo Section */}
       <div className="flex items-center gap-4">
         <LogoAcademia className="hidden md:flex" />
