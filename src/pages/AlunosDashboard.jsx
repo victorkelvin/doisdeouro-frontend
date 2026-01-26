@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { sortData, renderSortIndicator, filterData } from '../utils/sorting';
 import useAlunoForm from '../hooks/useAlunoForm';
-import { fetchAlunos, fetchGraduacoes, createAluno, updateAluno } from '../services/alunosApi';
+import { fetchAlunos, fetchGraduacoes, createAluno, updateAluno, generateRegistrationLink } from '../services/alunosApi';
 import { fetchTurmas } from '../services/turmasApi';
 import SearchBar from '../components/SearchBar';
 import SpanCard from '../components/SpanCard';
@@ -23,7 +23,10 @@ const AlunosDashboard = () => {
     const [sortDirection, setSortDirection] = useState('asc');
     const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
     const cardRef = useRef(null);
-    // const [linkExpirationTime, setLinkExpirationTime] = useState('');
+    const [linkExpirationTime, setLinkExpirationTime] = useState('');
+    const [generatingLink, setGeneratingLink] = useState(false);
+    const [registrationLink, setRegistrationLink] = useState('');
+    const [copySuccess, setCopySuccess] = useState(false);
 
     const [selectedGraduacoes, setSelectedGraduacoes] = useState([]);
     const [selectedTurmas, setSelectedTurmas] = useState([]);
@@ -117,6 +120,34 @@ const AlunosDashboard = () => {
 
     const handleMouseLeave = () => {
         setSelectedAluno(null);
+    };
+
+    const handleGenerateRegistrationLink = async () => {
+        if (!linkExpirationTime || parseInt(linkExpirationTime) < 1) {
+            alert('Por favor, insira uma quantidade válida de horas');
+            return;
+        }
+
+        setGeneratingLink(true);
+        try {
+            const response = await generateRegistrationLink(parseInt(linkExpirationTime));
+            const baseUrl = window.location.origin;
+            const fullLink = `${baseUrl}/register/${response.token}`;
+            setRegistrationLink(fullLink);
+            setCopySuccess(false);
+        } catch (error) {
+            console.error('Erro ao gerar link:', error);
+            alert('Erro ao gerar link de registro. Tente novamente.');
+        } finally {
+            setGeneratingLink(false);
+        }
+    };
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(registrationLink).then(() => {
+            setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 2000);
+        });
     };
 
 
@@ -236,7 +267,7 @@ const AlunosDashboard = () => {
                     )}
                 </button>
 
-                {/* <div className='flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-end'>
+                <div className='flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-end'>
                     <input
                         type="number"
                         min="1"
@@ -246,17 +277,41 @@ const AlunosDashboard = () => {
                         className="border rounded p-2 w-full sm:w-24 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent text-center"
                     />
                     <button
-                        className='bg-yellow-500 hover:bg-yellow-400 text-white rounded px-4 py-2 flex items-center justify-center transition-all duration-200 shadow-md whitespace-nowrap w-full sm:w-auto'
-                        // onClick={}
+                        onClick={handleGenerateRegistrationLink}
+                        disabled={generatingLink}
+                        className='bg-yellow-500 hover:bg-yellow-400 disabled:bg-gray-400 text-white rounded px-4 py-2 flex items-center justify-center transition-all duration-200 shadow-md whitespace-nowrap w-full sm:w-auto'
                     >
-                        Gerar Link
+                        {generatingLink ? 'Gerando...' : 'Gerar Link'}
                     </button>
-                </div> */}
+                </div>
             </div>
 
-
-
-            {isFormVisible && (
+            {/* Exibição do Link Gerado */}
+            {registrationLink && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <p className="text-sm font-semibold text-green-800 mb-2">Link de Registro Gerado:</p>
+                    <div className="flex gap-2 items-center">
+                        <input
+                            type="text"
+                            value={registrationLink}
+                            readOnly
+                            className="flex-1 border border-green-300 rounded p-2 text-sm bg-white focus:outline-none"
+                        />
+                        <button
+                            onClick={handleCopyLink}
+                            className={`px-3 py-2 rounded text-sm font-medium transition-all duration-200 ${copySuccess
+                                ? 'bg-green-600 text-white'
+                                : 'bg-green-500 hover:bg-green-600 text-white'
+                                }`}
+                        >
+                            {copySuccess ? '✓ Copiado' : 'Copiar'}
+                        </button>
+                    </div>
+                    <p className="text-xs text-green-700 mt-2">
+                        Validade: {linkExpirationTime} hora(s) a partir da geração
+                    </p>
+                </div>
+            )}
                 <div className="bg-neutral-200 p-4 sm:p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Aluno' : 'Adicionar Novo Aluno'}</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">

@@ -68,8 +68,14 @@ const refreshAccessToken = async () => {
 };
 
 const logout = () => {
-    window.localStorage.clear();
-    window.location.href = '/login';
+    // Don't auto-logout on public routes
+    const currentPath = window.location.pathname;
+    const isPublicRoute = currentPath.startsWith('/register') || currentPath === '/login';
+    
+    if (!isPublicRoute) {
+        window.localStorage.clear();
+        window.location.href = '/login';
+    }
 };
 
 const handleResponse = async (response, retryCallback) => {
@@ -177,4 +183,17 @@ const apiBlobHandler = async (endpoint, body) => {
 
 }
 
-export { apiRequest, apiFormDataRequest, logout, apiBlobHandler, API_URL };
+const noLoginRequest = async (endpoint, method, formData) => {
+    try {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+            method,
+            body: formData,
+        });
+        return response;
+    } catch (error) {
+        console.error('Error in request:', error);
+        return { error: 'Unable to process request' };
+    }
+}
+
+export { apiRequest, apiFormDataRequest, logout, apiBlobHandler, noLoginRequest, API_URL };

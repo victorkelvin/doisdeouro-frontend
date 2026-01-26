@@ -1,7 +1,9 @@
-import { apiRequest, apiFormDataRequest } from './baseApi';
+import { apiRequest, apiFormDataRequest, noLoginRequest } from './baseApi';
 
 const alunosEndpoint = 'academia/alunos/';
 const graduacoesEndpoint = 'academia/graduacoes/';
+const registrationEndpoint = 'academia/alunos/generate_invitation/';
+const validateInvaitationEndpoint = 'academia/alunos/validate_invitation/';
 
 export const fetchAlunos = async () => {
     return await apiRequest(alunosEndpoint, 'get');
@@ -18,3 +20,15 @@ export const createAluno = async (formData) => {
 export const updateAluno = async (id, formData) => {
     return await apiFormDataRequest(`${alunosEndpoint}${id}/`, 'put', formData);
 };
+
+export const generateRegistrationLink = async (expirationHours = 24) => {
+    return await apiRequest(`${registrationEndpoint}?hours=${expirationHours}`, 'post');
+};
+
+export const registerAlunoWithToken = async (token, formData) => {
+    return await noLoginRequest(`${alunosEndpoint}?token=${token}/`, 'post', formData);
+};
+
+export const validateRegistrationToken = async (token) => {
+    return await noLoginRequest(`${validateInvaitationEndpoint}?token=${token}`, 'get');
+}

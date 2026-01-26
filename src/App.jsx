@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Main from './pages/Main';
+import AlunoRegister from './pages/AlunoRegister';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -22,6 +23,7 @@ const App = () => {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register/:token" element={<AlunoRegister />} />
           <Route path="/main/*" element={
             <ProtectedRoute>
               <Main />
