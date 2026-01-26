@@ -397,8 +397,8 @@ const AlunosDashboard = () => {
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder='Buscar Aluno' />
             </div>
 
-            {/* Filtros por Graduação e Turma */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            {/* Filtros por Graduação, Turma e Ativo */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
                 <div className="md:col-span-1">
                     <MultiSelect
                         label={"Graduações"}
@@ -413,16 +413,7 @@ const AlunosDashboard = () => {
                         }}
                         placeholder="Selecione as graduações..."
                     />
-                    <div className="flex items-center mt-2">
-                        <input
-                            type="checkbox"
-                            id="ativos-filter"
-                            checked={selectedAtivos.includes("true")}
-                            onChange={() => setSelectedAtivos(selectedAtivos.includes("true") ? [] : ["true"])}
-                            className="rounded"
-                        />
-                        <label htmlFor="ativos-filter" className="text-sm text-gray-700 ml-1">Somente Alunos Ativos</label>
-                    </div>
+
                 </div>
 
                 <div className="md:col-span-1">
@@ -439,6 +430,16 @@ const AlunosDashboard = () => {
                         }}
                         placeholder="Selecione as Turmas..."
                     />
+                </div>
+                <div className="flex md:col-span-1 items-center justify-center">
+                    <input
+                        type="checkbox"
+                        id="ativos-filter"
+                        checked={selectedAtivos.includes("true")}
+                        onChange={() => setSelectedAtivos(selectedAtivos.includes("true") ? [] : ["true"])}
+                        className="rounded"
+                    />
+                    <label htmlFor="ativos-filter" className="text-sm text-gray-700 ml-1">Somente Alunos Ativos</label>
                 </div>
 
                 <div className="flex md:col-span-1 items-center">
