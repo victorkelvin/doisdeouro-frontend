@@ -9,6 +9,8 @@ const useAlunoRegisterForm = () => {
     const [fotoPreview, setFotoPreview] = useState('');
     const [responsavel, setResponsavel] = useState('');
     const [termsAccepted, setTermsAccepted] = useState(false);
+    const [graduacao, setGraduacao] = useState('');
+    const [turma, setTurma] = useState('');
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -51,6 +53,10 @@ const useAlunoRegisterForm = () => {
         setTermsAccepted,
         handleFileChange,
         resetForm,
+        graduacao,
+        setGraduacao,
+        turma,
+        setTurma
     };
 };
 

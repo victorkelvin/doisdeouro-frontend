@@ -189,7 +189,7 @@ const noLoginRequest = async (endpoint, method, formData) => {
             method,
             body: formData,
         });
-        return response;
+        return handleResponse(response);
     } catch (error) {
         console.error('Error in request:', error);
         return { error: 'Unable to process request' };

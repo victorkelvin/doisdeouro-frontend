@@ -15,6 +15,8 @@ const useAlunoForm = () => {
     const [responsavel, setResponsavel] = useState('');
     const [data_graduacao, setDataGraduacao] = useState('');
     const [data_grau, setDataGrau] = useState('');
+    const [termsAccepted, setTermsAccepted] = useState(false);
+
 
     const resetForm = () => {
         setNome('');
@@ -31,6 +33,7 @@ const useAlunoForm = () => {
         setResponsavel('');
         setDataGraduacao('');
         setDataGrau('');
+        setTermsAccepted(false);
     };
 
     const handleFileChange = (e) => {
@@ -69,6 +72,8 @@ const useAlunoForm = () => {
         data_grau,
         setDataGraduacao,
         setDataGrau,
+        termsAccepted,
+        setTermsAccepted
     };
 };
 

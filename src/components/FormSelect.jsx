@@ -31,7 +31,7 @@ const FormSelect = ({
                 <option value="">{placeholder}</option>
                 {options.map((option) => (
                     <option key={option.id || option.value} value={option.id || option.value}>
-                        {option.label || option.name || option.faixa}
+                        {option.label || option.nome || option.faixa}
                     </option>
                 ))}
             </select>

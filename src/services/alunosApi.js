@@ -26,7 +26,7 @@ export const generateRegistrationLink = async (expirationHours = 24) => {
 };
 
 export const registerAlunoWithToken = async (token, formData) => {
-    return await noLoginRequest(`${alunosEndpoint}?token=${token}/`, 'post', formData);
+    return await noLoginRequest(`${alunosEndpoint}?token=${token}`, 'post', formData);
 };
 
 export const validateRegistrationToken = async (token) => {

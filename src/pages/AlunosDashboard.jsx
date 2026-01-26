@@ -444,7 +444,6 @@ const AlunosDashboard = () => {
                         </div>
                     </form>
                 </div>
-            )}
 
 
             {/* Tabela de alunos */}

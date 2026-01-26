@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import useAlunoRegisterForm from '../hooks/useAlunoRegisterForm';
-import {noLoginRequest} from '../services/baseApi';
-import { registerAlunoWithToken, fetchGraduacoes } from '../services/alunosApi';
-import { fetchTurmas } from '../services/turmasApi';
+import useAlunoForm from '../hooks/useAlunoForm';
+import { noLoginRequest } from '../services/baseApi';
+import { registerAlunoWithToken } from '../services/alunosApi';
 import FormInput from '../components/FormInput';
 import FormDateInput from '../components/FormDateInput';
 import FormSelect from '../components/FormSelect';
@@ -30,28 +29,36 @@ const AlunoRegister = () => {
         foto,
         fotoPreview,
         responsavel,
-        termsAccepted,
         setNome,
         setDataNascimento,
         setContato,
         setEmail,
-        setFotoPreview,
         setResponsavel,
         setTermsAccepted,
         handleFileChange,
-    } = useAlunoRegisterForm();
+        graduacao,
+        setGraduacao,
+        turma,
+        setTurma,
+        setDataGraduacao,
+        setDataGrau,
+        data_graduacao,
+        data_grau,
+        graus,
+        setGraus,
+        resetForm,
+    } = useAlunoForm();
 
-    React.useEffect(() => {
-        const loadData = async () => {
-            try {
-                const graduacoesData = await noLoginRequest('academia/graduacoes/', 'get');
-                setGraduacoes(graduacoesData);
-                const turmasData = await noLoginRequest('academia/turmas/', 'get');
-                setTurmas(turmasData);
-            } catch (err) {
-                console.error('Erro ao carregar dados:', err);
-            }
-        };
+
+    const loadData = async () => {
+        const graduacoesData = await noLoginRequest('academia/graduacoes/', 'get');
+        console.log('Graduacoes data:', graduacoesData);
+        setGraduacoes(graduacoesData);
+        const turmasData = await noLoginRequest('academia/turmas/', 'get');
+        setTurmas(turmasData);
+    };
+
+    useEffect(() => {
         loadData();
     }, []);
 
@@ -109,6 +116,12 @@ const AlunoRegister = () => {
             formData.append('contato', contato || '');
             formData.append('email', email);
             formData.append('responsavel', responsavel || '');
+            formData.append('graduacao', graduacao || '');
+            formData.append('turma', turma || '');
+            formData.append('data_graduacao', data_graduacao || '');
+            formData.append('data_grau', data_grau || '');
+            formData.append('graus', graus || '');
+            formData.append('ativo', true);
             if (foto) {
                 formData.append('foto', foto);
             }
@@ -116,9 +129,9 @@ const AlunoRegister = () => {
             await registerAlunoWithToken(token, formData);
 
             // Redirecionar para página de sucesso ou login
-            navigate('/login', { 
-                state: { message: 'Cadastro realizado com sucesso! Faça login para continuar.' } 
-            });
+            window.alert('Cadastro realizado com sucesso!');
+            resetForm();
+
         } catch (err) {
             console.error('Erro ao registrar:', err);
             setError(err.message || 'Erro ao processar o cadastro. Tente novamente.');
@@ -158,25 +171,26 @@ const AlunoRegister = () => {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {/* Data de Nascimento */}
                         <FormDateInput
-                            label="Data de Nascimento *"
+                            label="Data de Nascimento"
                             value={data_nascimento}
                             onChange={(e) => setDataNascimento(e.target.value)}
                             colSpan="full"
+                            required={true}
                         />
 
                         {/* Nome */}
                         <FormInput
-                            label="Nome Completo *"
+                            label="Nome Completo"
                             value={nome}
                             onChange={(e) => setNome(e.target.value)}
-                            placeholder="Seu nome completo"
+                            placeholder="Seu nome completo "
                             required={true}
                         />
 
                         {/* Campo Responsável (condicional) */}
                         <ConditionalField show={showResponsavel}>
                             <FormInput
-                                label="Responsável (Menor de 18 anos) *"
+                                label="Responsável (Menor de 18 anos) "
                                 value={responsavel}
                                 onChange={(e) => setResponsavel(e.target.value)}
                                 placeholder="Nome do responsável"
@@ -186,7 +200,7 @@ const AlunoRegister = () => {
 
                         {/* Email */}
                         <FormInput
-                            label="Email *"
+                            label="Email "
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             type="email"
@@ -201,6 +215,45 @@ const AlunoRegister = () => {
                             onChange={(e) => setContato(e.target.value)}
                             type="tel"
                             placeholder="(XX) XXXXX-XXXX"
+                        />
+
+                        {/*Graduacao*/}
+                        <FormSelect
+                            label="Graduação"
+                            value={graduacao}
+                            onChange={(e) => setGraduacao(e.target.value)}
+                            options={graduacoes}
+                            placeholder="Selecione a Graduação"
+                        />
+
+                        <FormDateInput
+                            label="Data da última graduação"
+                            value={data_graduacao}
+                            onChange={(e) => setDataGraduacao(e.target.value)}
+                            colSpan="1"
+                        />
+
+                        <FormInput
+                            label="Graus"
+                            value={graus}
+                            onChange={(e) => setGraus(e.target.value === '' ? '' : Number(e.target.value))}
+                            type="number"
+                            placeholder="0-4"
+                        />
+                        <FormDateInput
+                            label="Data do último grau"
+                            value={data_grau}
+                            onChange={(e) => setDataGrau(e.target.value)}
+                            colSpan="1"
+                        />
+
+                        {/*Turma*/}
+                        <FormSelect
+                            label="Turma"
+                            value={turma}
+                            onChange={(e) => setTurma(e.target.value)}
+                            options={turmas}
+                            placeholder="Selecione a Turma"
                         />
 
                         {/* Foto */}
@@ -244,18 +297,10 @@ const AlunoRegister = () => {
                             disabled={loading}
                             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded transition-all duration-200"
                         >
-                            {loading ? 'Processando...' : 'Criar Conta'}
+                            {loading ? 'Processando...' : 'Cadastrar'}
                         </button>
 
-                        <p className="text-center text-sm text-gray-600">
-                            Já tem uma conta?{' '}
-                            <a
-                                href="/login"
-                                className="text-indigo-600 hover:text-indigo-700 font-semibold"
-                            >
-                                Faça login aqui
-                            </a>
-                        </p>
+
                     </form>
                 </div>
             </div>
