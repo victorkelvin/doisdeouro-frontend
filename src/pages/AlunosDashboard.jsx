@@ -27,6 +27,7 @@ const AlunosDashboard = () => {
 
     const [selectedGraduacoes, setSelectedGraduacoes] = useState([]);
     const [selectedTurmas, setSelectedTurmas] = useState([]);
+    const [selectedAtivos, setSelectedAtivos] = useState([]);
 
     const {
         nome,
@@ -195,10 +196,12 @@ const AlunosDashboard = () => {
     const filteredAlunos = filterData(alunos, searchTerm).filter((a) => {
         const gradId = a.graduacao != null ? String(a.graduacao) : '';
         const turmaId = a.turma != null ? String(a.turma) : '';
+        const ativoStatus = a.ativo === true;
 
         const gradOk = selectedGraduacoes.length === 0 || selectedGraduacoes.includes(gradId);
         const turmaOk = selectedTurmas.length === 0 || selectedTurmas.includes(turmaId);
-        return gradOk && turmaOk;
+        const ativoOk = selectedAtivos.length === 0 || selectedAtivos.includes(String(ativoStatus));
+        return gradOk && turmaOk && ativoOk;
     });
     const sortedAlunos = sortData(filteredAlunos, sortDirection);
 
@@ -410,6 +413,16 @@ const AlunosDashboard = () => {
                         }}
                         placeholder="Selecione as graduações..."
                     />
+                    <div className="flex items-center mt-2">
+                        <input
+                            type="checkbox"
+                            id="ativos-filter"
+                            checked={selectedAtivos.includes("true")}
+                            onChange={() => setSelectedAtivos(selectedAtivos.includes("true") ? [] : ["true"])}
+                            className="rounded"
+                        />
+                        <label htmlFor="ativos-filter" className="text-sm text-gray-700 ml-1">Somente Alunos Ativos</label>
+                    </div>
                 </div>
 
                 <div className="md:col-span-1">
@@ -428,10 +441,10 @@ const AlunosDashboard = () => {
                     />
                 </div>
 
-                <div className="flex items-end md:col-span-1">
+                <div className="flex md:col-span-1 items-center">
                     <button
                         type="button"
-                        onClick={() => { setSelectedGraduacoes([]); setSelectedTurmas([]); }}
+                        onClick={() => { setSelectedGraduacoes([]); setSelectedTurmas([]); setSelectedAtivos([]); }}
                         className="w-full md:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded shadow-md transition-all duration-200 h-auto"
                     >
                         Limpar filtros
