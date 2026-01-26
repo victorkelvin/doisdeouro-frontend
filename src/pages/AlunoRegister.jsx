@@ -13,7 +13,6 @@ import LogoAcademia from '../components/LogoAcademia';
 
 const AlunoRegister = () => {
     const { token } = useParams();
-    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showTermsModal, setShowTermsModal] = useState(true);
