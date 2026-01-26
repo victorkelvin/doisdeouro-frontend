@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 const AlunoCardModal = ({ 
     isOpen, 
@@ -8,14 +8,35 @@ const AlunoCardModal = ({
     onSelectAluno 
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedTurmas, setSelectedTurmas] = useState([]);
+    const [selectedGraduacoes, setSelectedGraduacoes] = useState([]);
+    const [ativosOnly, setAtivosOnly] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+
+    // Extract unique turmas and graduações from alunos
+    const turmaOptions = useMemo(() => {
+        const turmas = [...new Set(alunos.map(a => a.turma_nome).filter(Boolean))];
+        return turmas.sort();
+    }, [alunos]);
+
+    const graduacaoOptions = useMemo(() => {
+        const graduacoes = [...new Set(alunos.map(a => a.faixa).filter(Boolean))];
+        return graduacoes.sort();
+    }, [alunos]);
     
     if (!isOpen) return null;
 
-    const filteredAlunos = alunos.filter(aluno => 
-        aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        aluno.faixa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        aluno.turma_nome?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredAlunos = alunos.filter(aluno => {
+        const matchSearch = aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            aluno.faixa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            aluno.turma_nome?.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchTurma = selectedTurmas.length === 0 || selectedTurmas.includes(aluno.turma_nome);
+        const matchGraduacao = selectedGraduacoes.length === 0 || selectedGraduacoes.includes(aluno.faixa);
+        const matchAtivo = !ativosOnly || aluno.ativo === true || aluno.ativo === 'true';
+        
+        return matchSearch && matchTurma && matchGraduacao && matchAtivo;
+    });
 
     const isSelected = (alunoId) => {
         return selectedAlunos.some(aluno => aluno.id === alunoId);
@@ -41,16 +62,114 @@ const AlunoCardModal = ({
                     </button>
                 </div>
                 
-                {/* Search Box */}
-                <div className="px-6 py-3 border-b">
+                {/* Search Box and Filter Button */}
+                <div className="px-6 py-3 border-b flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                     <input
                         type="text"
                         placeholder="Buscar alunos..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     />
+                    <button
+                        type="button"
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg flex items-center gap-2 justify-center transition-colors duration-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-5.414 5.414A2 2 0 0014 13.586V19a1 1 0 01-1.447.894l-4-2A1 1 0 018 17v-3.414a2 2 0 00-.586-1.414L2 6.707A1 1 0 012 6V4z" />
+                        </svg>
+                        Filtros
+                    </button>
                 </div>
+
+                {/* Filter Panel */}
+                {showFilters && (
+                    <div className="px-6 py-4 border-b bg-gray-50">
+                        <div className="space-y-4">
+                            {/* Turmas Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Turmas</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {turmaOptions.map(turma => (
+                                        <button
+                                            key={turma}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedTurmas(prev => 
+                                                    prev.includes(turma)
+                                                        ? prev.filter(t => t !== turma)
+                                                        : [...prev, turma]
+                                                );
+                                            }}
+                                            className={`px-3 py-1 rounded text-sm transition-colors duration-200 ${
+                                                selectedTurmas.includes(turma)
+                                                    ? 'bg-blue-500 text-white'
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            }`}
+                                        >
+                                            {turma}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Graduações Filter */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Graduações</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {graduacaoOptions.map(graduacao => (
+                                        <button
+                                            key={graduacao}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedGraduacoes(prev => 
+                                                    prev.includes(graduacao)
+                                                        ? prev.filter(g => g !== graduacao)
+                                                        : [...prev, graduacao]
+                                                );
+                                            }}
+                                            className={`px-3 py-1 rounded text-sm transition-colors duration-200 ${
+                                                selectedGraduacoes.includes(graduacao)
+                                                    ? 'bg-blue-500 text-white'
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            }`}
+                                        >
+                                            {graduacao}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Ativos Filter */}
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="ativos-filter"
+                                    checked={ativosOnly}
+                                    onChange={() => setAtivosOnly(!ativosOnly)}
+                                    className="rounded"
+                                />
+                                <label htmlFor="ativos-filter" className="text-sm text-gray-700">Somente Alunos Ativos</label>
+                            </div>
+
+                            {/* Clear Filters Button */}
+                            {(selectedTurmas.length > 0 || selectedGraduacoes.length > 0 || ativosOnly) && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSelectedTurmas([]);
+                                        setSelectedGraduacoes([]);
+                                        setAtivosOnly(false);
+                                    }}
+                                    className="w-full px-3 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 text-sm rounded transition-colors duration-200"
+                                >
+                                    Limpar Filtros
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
                 
                 {/* Cards Grid */}
                 <div className="flex-grow overflow-y-auto p-6">
