@@ -312,6 +312,7 @@ const AlunosDashboard = () => {
                     </p>
                 </div>
             )}
+            {isFormVisible && (
                 <div className="bg-neutral-200 p-4 sm:p-6 rounded-lg shadow-md mb-6 border border-gray-200 transition-all duration-300">
                     <h2 className="text-lg font-semibold mb-4 text-gray-800">{editingId ? 'Editar Aluno' : 'Adicionar Novo Aluno'}</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -445,7 +446,7 @@ const AlunosDashboard = () => {
                     </form>
                 </div>
 
-
+            )}
             {/* Tabela de alunos */}
             <div className="mb-4">
                 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} placeholder='Buscar Aluno' />
