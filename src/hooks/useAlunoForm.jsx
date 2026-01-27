@@ -40,30 +40,17 @@ const useAlunoForm = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Converter e comprimir para WebP (qualidade ajustada)
+        // Converter para WebP mantendo tamanho original e qualidade alta
         if (file.type !== 'image/webp') {
             try {
                 const img = new window.Image();
                 img.src = URL.createObjectURL(file);
                 img.onload = async () => {
                     const canvas = document.createElement('canvas');
-                    // Redimensiona se maior que 600px (opcional, remove se não quiser)
-                    const maxDim = 600;
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > maxDim || height > maxDim) {
-                        if (width > height) {
-                            height = Math.round((height * maxDim) / width);
-                            width = maxDim;
-                        } else {
-                            width = Math.round((width * maxDim) / height);
-                            height = maxDim;
-                        }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = img.width;
+                    canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
                     canvas.toBlob((blob) => {
                         if (blob) {
                             const webpFile = new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
@@ -73,7 +60,7 @@ const useAlunoForm = () => {
                             setFoto(file);
                             setFotoPreview(URL.createObjectURL(file));
                         }
-                    }, 'image/webp', 0.7); // qualidade reduzida para 0.7
+                    }, 'image/webp', 0.9); // qualidade alta
                 };
                 return;
             } catch (err) {
