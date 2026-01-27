@@ -10,6 +10,7 @@ import ImageUploadPreview from '../components/ImageUploadPreview';
 import ConditionalField from '../components/ConditionalField';
 import TermsConditionsModal from '../components/TermsConditionsModal';
 import LogoAcademia from '../components/LogoAcademia';
+import Footer from '../components/Footer';
 
 const AlunoRegister = () => {
     const { token } = useParams();
@@ -153,7 +154,7 @@ const AlunoRegister = () => {
                     <LogoAcademia />
                 </div>
 
-                <div className="bg-white rounded-lg shadow-lg p-8">
+                <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
                     <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">
                         Cadastro de Aluno
                     </h1>
@@ -301,8 +302,18 @@ const AlunoRegister = () => {
 
 
                     </form>
+
                 </div>
+                <Footer
+                    developerName="Victor Kelvin"
+                    githubUrl="https://github.com/victorkelvin"
+                    linkedinUrl="https://linkedin.com/in/victor-kelvin"
+                    whatsappUrl="https://wa.me/5561985702670"
+                    sticker={true}
+                />
+
             </div>
+
         </div>
     );
 };

@@ -5,15 +5,24 @@ function Footer({
   githubUrl = "https://github.com/username",
   linkedinUrl = "https://linkedin.com/in/username",
   whatsappUrl = "https://wa.me/5500000000000",
+  sticker = false,
 }) {
   return (
-    <footer className="border-t-2 bg-gray-300 py-2">
-      <div className="w-dvw flex flex-col items-center justify-between gap-2 text-xs text-black px-4 sm:flex-row">
-        <p>
-          © {new Date().getFullYear()} Academia Dois de Ouro. <br /> Desenvolvido por{" "}
-          <span className="font-medium">{developerName}</span>
-        </p>
-        <div className="flex items-center gap-2">
+    <footer
+      className={`border-t-2 bg-gray-300 py-2 px-2 ${
+        sticker ? "fixed bottom-0 left-0 w-full z-50" : ""
+      }`}
+    >
+      <div
+        className="mx-auto flex flex-row gap-2 text-xs text-black sm:items-center sm:justify-between"
+      >
+        <div className="w-full sm:w-auto sm:flex-1">
+          <p className="text-left">
+            © {new Date().getFullYear()} Academia Dois de Ouro.<br />
+            Desenvolvido por <span className="font-medium">{developerName}</span>
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-3 mt-1 sm:mt-0 sm:justify-end sm:w-auto">
           <a
             href={githubUrl}
             target="_blank"
