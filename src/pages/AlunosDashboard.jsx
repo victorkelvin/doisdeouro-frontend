@@ -18,7 +18,7 @@ const AlunosDashboard = () => {
     const [graduacoes, setGraduacoes] = useState([]);
     const [turmas, setTurmas] = useState([]);
     const [selectedAluno, setSelectedAluno] = useState(null);
-    const [isFormVisible, setIsFormVisible] = useState(true);
+    const [isFormVisible, setIsFormVisible] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortDirection, setSortDirection] = useState('asc');
     const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
