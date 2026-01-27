@@ -195,7 +195,7 @@ const AlunosDashboard = () => {
         setGraduacao(aluno.graduacao || '');
         setTurma(aluno.turma || '');
         setEditingId(aluno.id);
-        setFotoPreview(aluno.foto_base64 || '');
+        setFotoPreview(aluno.foto || '');
         setResponsavel(aluno.responsavel || '');
         setGraus(aluno.graus || '');
         setDataGraduacao(aluno.data_graduacao || '');

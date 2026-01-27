@@ -45,9 +45,9 @@ const SpanCard = ({ data, position, setCardPosition }) => {
         >
 
             <div className="flex flex-col items-center">
-                {data.foto_base64 ? (
+                {data.foto ? (
                     <img
-                        src={data.foto_base64}
+                        src={data.foto}
                         alt={data.nome}
                         className="w-32 h-32 object-cover rounded-lg mb-2 border border-gray-200 bg-gray-100"
                         loading="lazy"
