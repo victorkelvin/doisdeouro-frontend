@@ -262,6 +262,7 @@ const AlunoRegister = () => {
                             onFileChange={handleFileChange}
                             preview={fotoPreview}
                             accept="image/jpeg, image/png"
+                            required={true}
                         />
 
                         {/* Checkbox de Termos */}
