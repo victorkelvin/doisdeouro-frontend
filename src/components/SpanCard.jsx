@@ -49,7 +49,10 @@ const SpanCard = ({ data, position, setCardPosition }) => {
                     <img
                         src={data.foto_base64}
                         alt={data.nome}
-                        className="w-32 h-32 object-cover rounded-lg mb-2 border border-gray-200"
+                        className="w-32 h-32 object-cover rounded-lg mb-2 border border-gray-200 bg-gray-100"
+                        loading="lazy"
+                        style={{ background: 'linear-gradient(90deg, #f3f3f3 25%, #e2e2e2 50%, #f3f3f3 75%)' }}
+                        onError={e => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/128x128?text=Sem+Foto'; }}
                     />
                 ) : (
                     <svg

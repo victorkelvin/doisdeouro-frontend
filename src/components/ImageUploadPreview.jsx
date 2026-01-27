@@ -60,8 +60,10 @@ const ImageUploadPreview = ({
                     <img
                         src={preview}
                         alt="Preview"
-                        className="max-w-full h-auto rounded border border-gray-300"
-                        style={{ maxHeight: '200px' }}
+                        className="max-w-full h-auto rounded border border-gray-300 bg-gray-100"
+                        style={{ maxHeight: '200px', background: 'linear-gradient(90deg, #f3f3f3 25%, #e2e2e2 50%, #f3f3f3 75%)' }}
+                        loading="lazy"
+                        onError={e => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/128x128?text=Sem+Foto'; }}
                     />
                 </div>
             )}

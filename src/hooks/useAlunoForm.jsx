@@ -36,8 +36,52 @@ const useAlunoForm = () => {
         setTermsAccepted(false);
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
+        if (!file) return;
+
+        // Converter e comprimir para WebP (qualidade ajustada)
+        if (file.type !== 'image/webp') {
+            try {
+                const img = new window.Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    // Redimensiona se maior que 600px (opcional, remove se não quiser)
+                    const maxDim = 600;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const webpFile = new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
+                            setFoto(webpFile);
+                            setFotoPreview(URL.createObjectURL(blob));
+                        } else {
+                            setFoto(file);
+                            setFotoPreview(URL.createObjectURL(file));
+                        }
+                    }, 'image/webp', 0.7); // qualidade reduzida para 0.7
+                };
+                return;
+            } catch (err) {
+                setFoto(file);
+                setFotoPreview(URL.createObjectURL(file));
+                return;
+            }
+        }
         setFoto(file);
         setFotoPreview(URL.createObjectURL(file));
     };
