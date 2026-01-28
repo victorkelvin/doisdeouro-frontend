@@ -17,7 +17,6 @@ const AlunoCardModal = ({
 
 
     // Estado para armazenar a foto carregada dinamicamente
-    const [loadingFotoId, setLoadingFotoId] = useState(null);
     const [alunoFotos, setAlunoFotos] = useState({}); // { [id]: foto_base64 }
     const [loadingFotos, setLoadingFotos] = useState(false);
 
@@ -32,19 +31,28 @@ const AlunoCardModal = ({
         return graduacoes.sort();
     }, [alunos]);
 
-    // Só filtra/exibe alunos se pelo menos um filtro estiver selecionado
-    const filtroAtivo = selectedTurmas.length > 0 || selectedGraduacoes.length > 0 || ativosOnly || searchTerm.trim().length > 0;
-    const filteredAlunos = filtroAtivo
-        ? alunos.filter(aluno => {
-            const matchSearch = aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                aluno.faixa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                aluno.turma_nome?.toLowerCase().includes(searchTerm.toLowerCase());
+    // Cards aparecem se: (filtro principal ativo) OU (busca com 4+ caracteres)
+    const filtroPrincipalAtivo = selectedTurmas.length > 0 || selectedGraduacoes.length > 0 || ativosOnly;
+    const buscaAtiva = searchTerm.trim().length >= 4;
+    const podeExibir = filtroPrincipalAtivo || buscaAtiva;
+    const filteredAlunos = useMemo(() => {
+        if (!podeExibir) return [];
+        return alunos.filter(aluno => {
+            // Aplica filtro de busca se há texto digitado
+            const matchSearch = searchTerm.trim().length === 0
+                ? true
+                : (
+                    aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    aluno.faixa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    aluno.turma_nome?.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            // Aplica filtros principais se estão ativos
             const matchTurma = selectedTurmas.length === 0 || selectedTurmas.includes(aluno.turma_nome);
             const matchGraduacao = selectedGraduacoes.length === 0 || selectedGraduacoes.includes(aluno.faixa);
             const matchAtivo = !ativosOnly || aluno.ativo === true || aluno.ativo === 'true';
             return matchSearch && matchTurma && matchGraduacao && matchAtivo;
-        })
-        : [];
+        });
+    }, [alunos, podeExibir, searchTerm, selectedTurmas, selectedGraduacoes, ativosOnly]);
 
     const isSelected = (alunoId) => {
         return selectedAlunos.some(aluno => aluno.id === alunoId);
@@ -53,12 +61,10 @@ const AlunoCardModal = ({
 
 
     const handleSelectAluno = async (aluno) => {
-        // Se já temos a foto, apenas seleciona
         if (alunoFotos[aluno.id] || aluno.foto_base64) {
             onSelectAluno({ ...aluno, foto_base64: alunoFotos[aluno.id] || aluno.foto_base64 });
             return;
         }
-        setLoadingFotoId(aluno.id);
         try {
             const details = await fetchAlunoById(aluno.id);
             setAlunoFotos(prev => ({ ...prev, [aluno.id]: details.foto_base64 }));
@@ -66,7 +72,6 @@ const AlunoCardModal = ({
         } catch (err) {
             onSelectAluno(aluno); // fallback sem foto
         } finally {
-            setLoadingFotoId(null);
         }
     };
 
@@ -74,11 +79,10 @@ const AlunoCardModal = ({
     // Buscar fotos dos alunos filtrados automaticamente, evitando loop
     useEffect(() => {
         if (!isOpen) return;
-        if (!filtroAtivo || filteredAlunos.length === 0) return;
-        // IDs dos alunos filtrados
-        const filteredIds = filteredAlunos.map(a => a.id);
-        // IDs que ainda não têm foto carregada
-        const idsSemFoto = filteredIds.filter(id => !alunoFotos[id]);
+        if (!podeExibir || filteredAlunos.length === 0) return;
+        // snapshot do cache de fotos no início do efeito
+        const alunoFotosSnapshot = { ...alunoFotos };
+        const idsSemFoto = filteredAlunos.map(a => a.id).filter(id => !alunoFotosSnapshot[id]);
         if (idsSemFoto.length === 0) return;
         setLoadingFotos(true);
         Promise.all(
@@ -92,14 +96,16 @@ const AlunoCardModal = ({
             })
         ).then(results => {
             setAlunoFotos(prev => {
+                // Só adiciona fotos que ainda não estão no cache
                 const novo = { ...prev };
-                results.forEach(r => { if (r.foto_base64) novo[r.id] = r.foto_base64; });
+                results.forEach(r => {
+                    if (r.foto_base64 && !novo[r.id]) novo[r.id] = r.foto_base64;
+                });
                 return novo;
             });
             setLoadingFotos(false);
         });
-    // Só depende dos IDs filtrados, do cache e do estado do modal
-    }, [isOpen, filtroAtivo, JSON.stringify(filteredAlunos.map(a => a.id)), JSON.stringify(alunoFotos)]);
+    }, [isOpen, podeExibir, filteredAlunos, alunoFotos]);
 
     if (!isOpen) return null;
 
@@ -230,7 +236,7 @@ const AlunoCardModal = ({
                 
                 {/* Cards Grid */}
                 <div className="flex-grow overflow-y-auto p-6">
-                    {filtroAtivo ? (
+                    {podeExibir ? (
                         filteredAlunos.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {filteredAlunos.map(aluno => {
