@@ -32,3 +32,7 @@ export const registerAlunoWithToken = async (token, formData) => {
 export const validateRegistrationToken = async (token) => {
     return await noLoginRequest(`${validateInvitationEndpoint}?token=${token}`, 'get');
 }
+
+export const fetchAlunoById = async (id) => {
+    return await apiRequest(`${alunosEndpoint}${id}/`, 'get');
+};

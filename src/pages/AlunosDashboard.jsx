@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { sortData, renderSortIndicator, filterData } from '../utils/sorting';
 import useAlunoForm from '../hooks/useAlunoForm';
-import { fetchAlunos, fetchGraduacoes, createAluno, updateAluno, generateRegistrationLink } from '../services/alunosApi';
+import { fetchAlunos, fetchGraduacoes, createAluno, updateAluno, generateRegistrationLink, fetchAlunoById } from '../services/alunosApi';
 import { fetchTurmas } from '../services/turmasApi';
 import SearchBar from '../components/SearchBar';
 import SpanCard from '../components/SpanCard';
@@ -18,6 +18,8 @@ const AlunosDashboard = () => {
     const [graduacoes, setGraduacoes] = useState([]);
     const [turmas, setTurmas] = useState([]);
     const [selectedAluno, setSelectedAluno] = useState(null);
+    const [selectedAlunoDetails, setSelectedAlunoDetails] = useState(null);
+    const [loadingAlunoDetails, setLoadingAlunoDetails] = useState(false);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortDirection, setSortDirection] = useState('asc');
@@ -89,8 +91,10 @@ const AlunosDashboard = () => {
     };
     const showResponsavel = data_nascimento ? calculateAge(data_nascimento) < 18 : false;
 
-    const handleMouseEnter = (aluno, e) => {
+    const handleMouseEnter = async (aluno, e) => {
         setSelectedAluno(aluno);
+        setSelectedAlunoDetails(null);
+        setLoadingAlunoDetails(true);
 
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
@@ -116,10 +120,22 @@ const AlunosDashboard = () => {
         }, 0);
 
         setCardPosition({ x, y });
+
+        // Busca detalhes do aluno (incluindo foto_base64) somente quando necessário
+        try {
+            const details = await fetchAlunoById(aluno.id);
+            setSelectedAlunoDetails({ ...aluno, ...details });
+        } catch (err) {
+            setSelectedAlunoDetails(aluno); // fallback sem foto
+        } finally {
+            setLoadingAlunoDetails(false);
+        }
     };
 
     const handleMouseLeave = () => {
         setSelectedAluno(null);
+        setSelectedAlunoDetails(null);
+        setLoadingAlunoDetails(false);
     };
 
     const handleGenerateRegistrationLink = async () => {
@@ -596,7 +612,16 @@ const AlunosDashboard = () => {
 
             {
                 selectedAluno && (
-                    <SpanCard data={selectedAluno} position={cardPosition} setCardPosition={setCardPosition} />
+                    loadingAlunoDetails ? (
+                        <div
+                            className="fixed bg-white rounded-lg border p-4 shadow-lg max-w-xs z-50 flex items-center justify-center"
+                            style={{ left: `${cardPosition.x}px`, top: `${cardPosition.y}px` }}
+                        >
+                            <span className="text-gray-500">Carregando...</span>
+                        </div>
+                    ) : (
+                        <SpanCard data={selectedAlunoDetails || selectedAluno} position={cardPosition} setCardPosition={setCardPosition} />
+                    )
                 )
             }
         </div >

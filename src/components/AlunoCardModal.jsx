@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { getCachedImage } from '../utils/imageCache';
+import { fetchAlunoById } from '../services/alunosApi';
 
 const AlunoCardModal = ({ 
     isOpen, 
@@ -13,6 +15,12 @@ const AlunoCardModal = ({
     const [ativosOnly, setAtivosOnly] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
 
+
+    // Estado para armazenar a foto carregada dinamicamente
+    const [loadingFotoId, setLoadingFotoId] = useState(null);
+    const [alunoFotos, setAlunoFotos] = useState({}); // { [id]: foto_base64 }
+    const [loadingFotos, setLoadingFotos] = useState(false);
+
     // Extract unique turmas and graduações from alunos
     const turmaOptions = useMemo(() => {
         const turmas = [...new Set(alunos.map(a => a.turma_nome).filter(Boolean))];
@@ -23,28 +31,77 @@ const AlunoCardModal = ({
         const graduacoes = [...new Set(alunos.map(a => a.faixa).filter(Boolean))];
         return graduacoes.sort();
     }, [alunos]);
-    
-    if (!isOpen) return null;
 
-    const filteredAlunos = alunos.filter(aluno => {
-        const matchSearch = aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            aluno.faixa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            aluno.turma_nome?.toLowerCase().includes(searchTerm.toLowerCase());
-        
-        const matchTurma = selectedTurmas.length === 0 || selectedTurmas.includes(aluno.turma_nome);
-        const matchGraduacao = selectedGraduacoes.length === 0 || selectedGraduacoes.includes(aluno.faixa);
-        const matchAtivo = !ativosOnly || aluno.ativo === true || aluno.ativo === 'true';
-        
-        return matchSearch && matchTurma && matchGraduacao && matchAtivo;
-    });
+    // Só filtra/exibe alunos se pelo menos um filtro estiver selecionado
+    const filtroAtivo = selectedTurmas.length > 0 || selectedGraduacoes.length > 0 || ativosOnly || searchTerm.trim().length > 0;
+    const filteredAlunos = filtroAtivo
+        ? alunos.filter(aluno => {
+            const matchSearch = aluno.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                aluno.faixa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                aluno.turma_nome?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchTurma = selectedTurmas.length === 0 || selectedTurmas.includes(aluno.turma_nome);
+            const matchGraduacao = selectedGraduacoes.length === 0 || selectedGraduacoes.includes(aluno.faixa);
+            const matchAtivo = !ativosOnly || aluno.ativo === true || aluno.ativo === 'true';
+            return matchSearch && matchTurma && matchGraduacao && matchAtivo;
+        })
+        : [];
 
     const isSelected = (alunoId) => {
         return selectedAlunos.some(aluno => aluno.id === alunoId);
     };
 
-    const handleSelectAluno = (aluno) => {
-        onSelectAluno(aluno);
+
+
+    const handleSelectAluno = async (aluno) => {
+        // Se já temos a foto, apenas seleciona
+        if (alunoFotos[aluno.id] || aluno.foto_base64) {
+            onSelectAluno({ ...aluno, foto_base64: alunoFotos[aluno.id] || aluno.foto_base64 });
+            return;
+        }
+        setLoadingFotoId(aluno.id);
+        try {
+            const details = await fetchAlunoById(aluno.id);
+            setAlunoFotos(prev => ({ ...prev, [aluno.id]: details.foto_base64 }));
+            onSelectAluno({ ...aluno, ...details });
+        } catch (err) {
+            onSelectAluno(aluno); // fallback sem foto
+        } finally {
+            setLoadingFotoId(null);
+        }
     };
+
+
+    // Buscar fotos dos alunos filtrados automaticamente, evitando loop
+    useEffect(() => {
+        if (!isOpen) return;
+        if (!filtroAtivo || filteredAlunos.length === 0) return;
+        // IDs dos alunos filtrados
+        const filteredIds = filteredAlunos.map(a => a.id);
+        // IDs que ainda não têm foto carregada
+        const idsSemFoto = filteredIds.filter(id => !alunoFotos[id]);
+        if (idsSemFoto.length === 0) return;
+        setLoadingFotos(true);
+        Promise.all(
+            idsSemFoto.map(async (id) => {
+                try {
+                    const details = await fetchAlunoById(id);
+                    return { id, foto_base64: details.foto_base64 };
+                } catch {
+                    return { id, foto_base64: null };
+                }
+            })
+        ).then(results => {
+            setAlunoFotos(prev => {
+                const novo = { ...prev };
+                results.forEach(r => { if (r.foto_base64) novo[r.id] = r.foto_base64; });
+                return novo;
+            });
+            setLoadingFotos(false);
+        });
+    // Só depende dos IDs filtrados, do cache e do estado do modal
+    }, [isOpen, filtroAtivo, JSON.stringify(filteredAlunos.map(a => a.id)), JSON.stringify(alunoFotos)]);
+
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
@@ -173,53 +230,66 @@ const AlunoCardModal = ({
                 
                 {/* Cards Grid */}
                 <div className="flex-grow overflow-y-auto p-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {filteredAlunos.map(aluno => (
-                            <div 
-                                key={aluno.id}
-                                onClick={() => handleSelectAluno(aluno)}
-                                className={`cursor-pointer rounded-lg overflow-hidden shadow-md border ${
-                                    isSelected(aluno.id) 
-                                    ? 'border-blue-500 ring-2 ring-blue-300' 
-                                    : 'border-gray-200 hover:border-gray-300'
-                                }`}
-                            >
-                                <div className="relative">
-                                    {/* Placeholder for photo */}
-                                    <div className="bg-gray-200 h-40 flex items-center justify-center">
-                                        {aluno.foto_base64 ? (
-                                            <img 
-                                                src={aluno.foto_base64} 
-                                                alt={aluno.nome} 
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                        )}
-                                    </div>
-                                    
-                                    {/* Selected indicator */}
-                                    {isSelected(aluno.id) && (
-                                        <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
+                    {filtroAtivo ? (
+                        filteredAlunos.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {filteredAlunos.map(aluno => {
+                                    const foto = alunoFotos[aluno.id] || aluno.foto_base64;
+                                    return (
+                                        <div
+                                            key={aluno.id}
+                                            onClick={() => handleSelectAluno(aluno)}
+                                            className={`cursor-pointer rounded-lg overflow-hidden shadow-md border ${
+                                                isSelected(aluno.id)
+                                                    ? 'border-blue-500 ring-2 ring-blue-300'
+                                                    : 'border-gray-200 hover:border-gray-300'
+                                            }`}
+                                        >
+                                            <div className="relative">
+                                                {/* Placeholder for photo */}
+                                                <div className="bg-gray-200 h-40 flex items-center justify-center">
+                                                    {loadingFotos ? (
+                                                        <span className="text-gray-400">Carregando...</span>
+                                                    ) : foto ? (
+                                                        <img
+                                                            src={getCachedImage(aluno.id || aluno.nome, foto)}
+                                                            alt={aluno.nome}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+
+                                                {/* Selected indicator */}
+                                                {isSelected(aluno.id) && (
+                                                    <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="p-3">
+                                                <h3 className="font-medium text-gray-800 truncate">{aluno.nome}</h3>
+                                                <div className="text-sm text-gray-500 mt-1">
+                                                    <p>{aluno.faixa || "Sem faixa"}</p>
+                                                    <p>{aluno.turma_nome || "Sem turma"}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
-                                
-                                <div className="p-3">
-                                    <h3 className="font-medium text-gray-800 truncate">{aluno.nome}</h3>
-                                    <div className="text-sm text-gray-500 mt-1">
-                                        <p>{aluno.faixa || "Sem faixa"}</p>
-                                        <p>{aluno.turma_nome || "Sem turma"}</p>
-                                    </div>
-                                </div>
+                                    );
+                                })}
                             </div>
-                        ))}
-                    </div>
+                        ) : (
+                            <div className="text-gray-500 text-center">Nenhum aluno encontrado com os filtros selecionados.</div>
+                        )
+                    ) : (
+                        <div className="text-gray-400 text-center">Selecione pelo menos um filtro para exibir os alunos.</div>
+                    )}
                 </div>
                 
                 {/* Footer with actions */}
