@@ -201,7 +201,9 @@ const AlunosDashboard = () => {
         }
     };
 
-    const handleEdit = (aluno) => {
+    const handleEdit = async (aluno) => {
+        const img = await fetchAlunoById(aluno.id);
+        aluno.foto_base64 = img.foto_base64 || '';
         setIsFormVisible(true);
         setNome(aluno.nome);
         setAtivo(aluno.ativo === true || aluno.ativo === "true");

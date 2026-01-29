@@ -40,32 +40,58 @@ const useAlunoForm = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Converter para WebP mantendo tamanho original e qualidade alta
+        // Converter para WebP com redimensionamento
         if (file.type !== 'image/webp') {
             try {
                 const img = new window.Image();
-                img.src = URL.createObjectURL(file);
+                const objectUrl = URL.createObjectURL(file);
+                img.src = objectUrl;
                 img.onload = async () => {
+                    // Configurar tamanho máximo e manter proporção
+                    const MAX_WIDTH = 320;
+                    const MAX_HEIGHT = 640;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = Math.round((width * MAX_HEIGHT) / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
                     const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+                    canvas.width = width;
+                    canvas.height = height;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, img.width, img.height);
+                    ctx.drawImage(img, 0, 0, width, height);
                     canvas.toBlob((blob) => {
+                        URL.revokeObjectURL(objectUrl); // Limpa o URL antigo
                         if (blob) {
                             const webpFile = new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' });
                             setFoto(webpFile);
-                            setFotoPreview(URL.createObjectURL(blob));
+                            const previewUrl = URL.createObjectURL(blob);
+                            setFotoPreview(previewUrl);
                         } else {
-                            setFoto(file);
-                            setFotoPreview(URL.createObjectURL(file));
+                            setFoto(null);
+                            setFotoPreview('');
                         }
-                    }, 'image/webp', 0.9); // qualidade alta
+                    }, 'image/webp', 0.9);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(objectUrl);
+                    setFoto(null);
+                    setFotoPreview('');
                 };
                 return;
             } catch (err) {
-                setFoto(file);
-                setFotoPreview(URL.createObjectURL(file));
+                setFoto(null);
+                setFotoPreview('');
                 return;
             }
         }

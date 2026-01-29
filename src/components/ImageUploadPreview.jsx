@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 
 
-const MAX_IMAGE_SIZE = 500 * 1024; // 500 KB
 
 const ImageUploadPreview = ({ 
     label, 
@@ -10,25 +9,9 @@ const ImageUploadPreview = ({
     preview = null, 
     required = false,
     colSpan = '1',
-    error = null,
     disabled = false,
     accept = 'image/*',
 }) => {
-    const [sizeError, setSizeError] = useState(null);
-
-    const handleFileChange = (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file && file.size > MAX_IMAGE_SIZE) {
-            setSizeError('A imagem deve ter no máximo 500 KB.');
-            // Limpa o input
-            e.target.value = '';
-            // Não chama o onFileChange
-            return;
-        } else {
-            setSizeError(null);
-        }
-        onFileChange && onFileChange(e);
-    };
 
     return (
         <div className={`sm:col-span-${colSpan}`}>
@@ -42,7 +25,7 @@ const ImageUploadPreview = ({
                 <input
                     type="file"
                     accept={accept}
-                    onChange={handleFileChange}
+                    onChange={onFileChange}
                     required={required}
                     disabled={disabled}
                     className={`block w-full text-sm text-gray-500
@@ -67,9 +50,9 @@ const ImageUploadPreview = ({
                     />
                 </div>
             )}
-            {(sizeError || error) && (
+            {/* {(sizeError || error) && (
                 <p className="text-red-500 text-xs mb-2">{sizeError || error}</p>
-            )}
+            )} */}
         </div>
     );
 };
